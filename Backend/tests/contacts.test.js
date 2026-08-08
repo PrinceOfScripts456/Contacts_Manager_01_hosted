@@ -5,9 +5,6 @@ import mongoose from "mongoose";
 import connectDB from "../src/config/db.js";
 import Contact from "../src/models/contact.js";
 
-// app.js is only imported after connectDB() below, mirroring the same
-// order server.js uses. Some of the app's setup (e.g. reading env vars)
-// assumes the DB connection already exists.
 let app;
 
 beforeAll(async () => {
@@ -15,8 +12,6 @@ beforeAll(async () => {
     ({ default: app } = await import("../src/app.js"));
 });
 
-// Keep tests independent from each other: wipe the contacts collection
-// after every single test rather than sharing state between them.
 afterEach(async () => {
     await Contact.deleteMany({});
 });

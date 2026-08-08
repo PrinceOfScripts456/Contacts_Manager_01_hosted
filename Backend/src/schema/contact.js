@@ -2,6 +2,7 @@ import z from "zod";
 import mongoose from "mongoose";
 
 const contactSchema = z.object({
+
     firstName: z.string().trim().min(1),
     lastName: z.string().trim().min(1),
 

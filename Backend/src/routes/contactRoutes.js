@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Middlewares
 import contactSchema from "../schema/contact.js";
-import validate from "../middlewares/validateRequest.js";
+import validate from "../middlewares/validateContact.js";
 import validateFile from "../middlewares/validateFile.js";
 
 // Route controllers

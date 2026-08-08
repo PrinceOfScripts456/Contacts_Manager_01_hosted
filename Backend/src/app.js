@@ -10,13 +10,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 import connectDB from "./config/db.js";
+import authRoutes from "./routes/authRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 
 const app = express();
 
 let allowedOrigins = null;
 
-// Middlewares
 app.use(cors({
     origin: (origin, callback) => {
         if (allowedOrigins === null) {
@@ -30,9 +30,9 @@ app.use(cors({
         }
     }
 }));
+
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true }));
-
 
 app.engine("ejs", engine);
 app.set("view engine", "ejs");
@@ -56,6 +56,8 @@ app.use(async (req, res, next) => {
         await connectDB();
         return next();
     } catch (err) {
+        console.error("DB Connection failed: ", err.message);
+
         return res.status(503).json({
             success: false,
             error: "Database connection failed"
@@ -65,25 +67,17 @@ app.use(async (req, res, next) => {
 
 
 // Routes
-
-// root Route
 app.get("/", (req, res) => {
-    // return res.sendFile(path.join(__dirname, '../../Frontend', "index.html"));
     return res.render("pages/importFile");
 });
 
-
-// contacts Route
+app.use("/users", authRoutes);
 app.use("/contacts", contactRoutes);
 
-
-// unkown Route
 app.use("/", (req, res) => {
     return res.status(404).render("pages/pageNotFound");
 });
 
-
-// deep server error occured
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
 
