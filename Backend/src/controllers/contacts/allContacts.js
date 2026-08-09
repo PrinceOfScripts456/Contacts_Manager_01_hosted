@@ -53,7 +53,6 @@ const fetchContacts = async (req, res) => {
         console.log(` fetchContacts(): Sending ${contacts.length} Contacts`, req.query.search ? `, search: '${req.query.search}'` : "");
 
         return res.status(200).json({
-            success: true,
             contacts,
             pagination: {
                 total,
@@ -69,8 +68,7 @@ const fetchContacts = async (req, res) => {
         console.error(" fetchContacts():", err);
 
         return res.status(500).json({
-            success: false,
-            message: 'Failed to fetch contacts'
+            error: 'Failed to fetch contacts'
         });
     }
 };

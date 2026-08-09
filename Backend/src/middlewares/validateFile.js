@@ -8,19 +8,11 @@ const validateFile = (req, res, next) => {
 
             if (err.code === "LIMIT_FILE_SIZE") {
                 console.error(" validateFile(): file exceeded Max filesize");
-
-                return res.status(400).json({
-                    success: false,
-                    message: "File is too large. Maximum size is 20 MB."
-                });
+                return res.status(400).json({ error: "File is too large. Maximum size is 20 MB." });
             }
 
             console.error(" validateFile(): ", err);
-
-            return res.status(400).json({
-                success: false,
-                message: "file validation failed"
-            });
+            return res.status(400).json({ error: "file validation failed" });
         }
 
         next();

@@ -18,7 +18,6 @@ const deleteContactById = async (req, res) => {
         console.log(" deleteContactById(): Contact Deleted");
 
         return res.status(200).json({
-            success: true,
             contact: deletedContact,
             message: "Contact deleted successfully"
         });
@@ -27,8 +26,7 @@ const deleteContactById = async (req, res) => {
         console.error(" deleteContactById(): ", err);
 
         return res.status(500).json({
-            success: false,
-            message: "Error occurred while deleting"
+            error: "Error occurred while deleting"
         });
     }
 };

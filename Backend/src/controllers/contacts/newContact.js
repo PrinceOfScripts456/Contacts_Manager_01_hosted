@@ -20,37 +20,28 @@ async function saveContact(req, res) {
             company: req.body.company,
             jobTitle: req.body.jobTitle,
             created_at: now,
-            modified_at: now,
+            modified_at: now
         };
 
         data = validateData(contactSchema, data);
 
         if (data === false) {
             console.error("  saveContact(): contact NOT saved.");
-
-            return res.status(400).json({
-                success: false,
-                message: "data validation failed, contact not saved."
-            });
+            return res.status(400).json({ message: "data validation failed, contact not saved." });
         }
 
-        const savedContact = await Contact.create(data);
+        const savedContact = await Contact.create({ ...data, user: req.userId });
 
         console.log("  saveContact(): contact saved");
 
         return res.status(201).json({
-            success: true,
             contact: savedContact,
             message: "New contact saved successfully"
         });
 
     } catch (err) {
         console.error(" saveContact(): ", err);
-
-        return res.status(500).json({
-            success: false,
-            message: "Some error occurred while saving contact."
-        });
+        next(err);
     }
 }
 

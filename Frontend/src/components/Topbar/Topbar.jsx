@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   SearchIcon, CardsViewIcon, CompactViewIcon, FullViewIcon,
-  ImportIcon, ExportIcon, SunMoonIcon, PlusIcon,
+  ImportIcon, ExportIcon, SunMoonIcon, PlusIcon, BrandMarkIcon,
 } from '../icons.jsx';
+import UserMenu from '../Auth/UserMenu.jsx';
 import './Topbar.css';
 
 const VIEW_OPTIONS = [
@@ -47,7 +48,7 @@ export default function Topbar({
   return (
     <header className="topbar">
       <div className="topbar-brand">
-        <span className="topbar-brand-dot"></span>
+        <span className="topbar-brand-mark"><BrandMarkIcon /></span>
         <span>Contacts</span>
       </div>
       <div className="topbar-sep"></div>
@@ -104,6 +105,10 @@ export default function Topbar({
           <PlusIcon />
           <span>New contact</span>
         </button>
+
+        <div className="topbar-sep"></div>
+
+        <UserMenu />
       </div>
     </header>
   );

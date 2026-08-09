@@ -6,14 +6,16 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true, // send/receive the httpOnly "token" cookie the backend sets on login/signup
 });
 
 /**
  * The backend doesn't wrap responses the same way on every route. Some
  * send a bare array, some send { contacts: [...] } or { data: [...] },
- * some send a single contact as { contact: {...} }, and success messages
- * may or may not be present. This pulls a list of contacts out of
- * whatever shape shows up.
+ * some send a single contact as { contact: {...} }. Success/failure is
+ * conveyed by the HTTP status code, not a body field — a resolved axios
+ * promise here always means success. This pulls a list of contacts out
+ * of whatever shape shows up.
  */
 function extractContactList(data) {
   if (Array.isArray(data)) return data;
@@ -93,20 +95,24 @@ export async function deleteContact(id) {
 }
 
 /**
- * GET /contacts/export — the backend now prepares the export file
- * asynchronously and responds with JSON (not the file itself):
- *   { success: true, exported: 7272, downloadUrl: '...' }
+ * GET /contacts/export — the backend prepares the export file
+ * asynchronously and responds with JSON (not the file itself). A 2xx
+ * status means success (no `success` flag in the body); the payload may
+ * be bare or wrapped under `data`, and may include `exported`,
+ * `downloadUrl`, `message`, and/or `warn` depending on the situation.
  * The caller uses `downloadUrl` to trigger the actual file download.
  * `downloadUrl` may be a full URL or a path relative to the API base —
  * both are resolved correctly here.
  */
 export async function requestContactsExport() {
   const res = await api.get('/contacts/export');
-  const { success, exported, downloadUrl, message } = res.data || {};
+  const body = res.data?.data && typeof res.data.data === 'object' ? res.data.data : (res.data || {});
+  const { exported, downloadUrl, message } = body;
+  const warn = res.data?.warn;
   const resolvedUrl = downloadUrl
     ? new URL(downloadUrl, API_URL).toString()
     : null;
-  return { success: success !== false, exported, downloadUrl: resolvedUrl, message };
+  return { exported, downloadUrl: resolvedUrl, message, warn };
 }
 
 /**

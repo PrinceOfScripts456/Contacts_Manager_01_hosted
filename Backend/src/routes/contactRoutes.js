@@ -5,6 +5,7 @@ const router = express.Router();
 import contactSchema from "../schema/contact.js";
 import validate from "../middlewares/validateContact.js";
 import validateFile from "../middlewares/validateFile.js";
+import authUser from "../middlewares/authUser.js";
 
 // Route controllers
 import { fetchContacts } from "../controllers/contacts/allContacts.js";
@@ -29,7 +30,7 @@ router.get("/export", showRoutes, exportContactsFile);
 router.get("/export/:filename", showRoutes, downloadExportFile);
 router.get("/:id", showRoutes, viewContactById);
 
-router.post("/new", showRoutes, validate(contactSchema), saveContact);
+router.post("/new", showRoutes, validate(contactSchema), authUser, saveContact);
 router.post("/import", showRoutes, validateFile, importContactsFile);
 
 router.put("/:id", showRoutes, validate(contactSchema), updateContact);

@@ -22,10 +22,7 @@ const validate = (schema) => (req, res, next) => {
         else if (result.error.issues[0].path[0] == "website") errMsg = result.error.issues[0].message;
         else errMsg = result.error.issues[0].path[0] + result.error.issues[0].message;
 
-        return res.status(400).json({
-            success: false,
-            message: errMsg
-        });
+        return res.status(400).json({ error: errMsg });
     }
 
     console.log(" validate(): Good Request, Proceeding..");

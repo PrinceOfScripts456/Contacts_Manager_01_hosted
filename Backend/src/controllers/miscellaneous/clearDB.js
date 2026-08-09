@@ -10,27 +10,16 @@ const deleteAllContacts = async (req, res) => {
 
             console.log("deleteAllContacts():", result);
 
-            return res.status(200).json({
-                success: true,
-                deleted: result.deletedCount
-            });
+            return res.status(200).json({ deleted: result.deletedCount });
         }
         else {
             console.log("deleteAllContacts(): Access Denied, invalid token");
-
-            return res.status(403).json({
-                success: false,
-                message: "Access denied"
-            });
+            return res.status(403).json({ error: "Access denied" });
         }
 
     } catch (err) {
         console.error("deleteAllContacts(): ", err);
-
-        return res.status(500).json({
-            success: false,
-            message: "internal error"
-        });
+        next(err);
     }
 }
 

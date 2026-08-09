@@ -25,39 +25,26 @@ async function updateContact(req, res) {
 
         if (data === false) {
             console.error("  updateContact(): validation failed");
-
-            return res.status(400).json({
-                success: false,
-                message: "validation failed"
-            });
+            return res.status(400).json({ error: "validation failed" });
         }
 
         const editedContact = await Contact.findByIdAndUpdate(req.params.id, data, { returnDocument: 'after' });
 
         if (!editedContact) {
             console.log("  updateContact(): contact not found");
-
-            return res.status(404).json({
-                success: false,
-                message: "Contact not found",
-            });
+            return res.status(404).json({ error: "Contact not found", });
         }
 
         console.log("  updateContact(): contact updated");
 
         return res.status(200).json({
-            success: true,
-            message: "Contact edited successfully",
-            contact: editedContact
+            contact: editedContact,
+            message: "Contact edited successfully"
         });
 
     } catch (err) {
         console.error(" updateContact(): ", err);
-
-        return res.status(500).json({
-            success: false,
-            message: "error occurred while updating contact."
-        });
+        next(err);
     }
 }
 

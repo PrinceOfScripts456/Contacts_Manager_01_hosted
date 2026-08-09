@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import * as api from '../services/api';
 import { normalize, fullName } from '../utils/helpers';
 import { useToast } from '../components/Toast/ToastProvider';
+import { getErrorMessage } from '../utils/errors';
 
 // How many contacts to request from the backend in one batch. This is
 // unrelated to how many render on screen at once (see PAGE_SIZE in
@@ -152,7 +153,7 @@ export function useContacts() {
       raw = await api.createContact(payload);
     } catch (err) {
       console.error("createContact(): ", err);
-      showToast(err?.response?.data?.message || "Could not save contact.");
+      showToast(getErrorMessage(err, 'Could not save contact.'));
       throw err;
     }
 
@@ -199,7 +200,7 @@ export function useContacts() {
       raw = await api.updateContact(id, payload);
     } catch (err) {
       console.error('updateContact():', err);
-      showToast(err?.response?.data?.message || 'Could not update contact.');
+      showToast(getErrorMessage(err, 'Could not update contact.'));
       throw err;
     }
 
@@ -253,13 +254,18 @@ export function useContacts() {
     setExporting(true);
     const dismissPreparing = showToast('Preparing your export…', 30000);
     try {
-      const { success, exported, downloadUrl, message } = await api.requestContactsExport();
+      const { exported, downloadUrl, message, warn } = await api.requestContactsExport();
       dismissPreparing();
 
-      if (!success || !downloadUrl) {
+      // A resolved call means the backend responded with a success status;
+      // the only thing left to check here is whether it actually gave us
+      // something to download.
+      if (!downloadUrl) {
         showToast(message || 'Could not export contacts.');
         return;
       }
+
+      if (warn) showToast(warn, 4500);
 
       // Force an actual file download rather than letting the browser
       // navigate to/open the URL inline (which is what happened with a
@@ -289,7 +295,7 @@ export function useContacts() {
     } catch (err) {
       dismissPreparing();
       console.error('exportContacts():', err);
-      showToast('Could not export contacts.');
+      showToast(getErrorMessage(err, 'Could not export contacts.'));
     } finally {
       setExporting(false);
     }
@@ -321,10 +327,15 @@ export function useContacts() {
       } else {
         showToast(data.message || 'Contacts imported.', 4500);
       }
+
+      // Non-fatal issues (e.g. some rows skipped) may ride along on a
+      // successful response under `warn` — surface it without treating
+      // the import as failed.
+      if (data.warn) showToast(data.warn, 4500);
     } catch (err) {
       dismissPreparing();
       console.error('importContacts():', err);
-      showToast('Could not import file.');
+      showToast(getErrorMessage(err, 'Could not import file.'));
     } finally {
       setImporting(false);
     }

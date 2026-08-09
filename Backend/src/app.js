@@ -3,6 +3,7 @@ import cors from "cors";
 import path from "path";
 import engine from "ejs-mate";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 
 import { fileURLToPath } from "url";
 
@@ -10,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 import connectDB from "./config/db.js";
-import authRoutes from "./routes/authRoutes.js";
+import authRoutes from "./routes/userRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 
 const app = express();
@@ -28,9 +29,11 @@ app.use(cors({
             console.error(`CORS blocked: ${origin}`);
             callback(new Error("Not allowed by CORS"))
         }
-    }
+    },
+    credentials: true
 }));
 
+app.use(cookieParser());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -57,11 +60,7 @@ app.use(async (req, res, next) => {
         return next();
     } catch (err) {
         console.error("DB Connection failed: ", err.message);
-
-        return res.status(503).json({
-            success: false,
-            error: "Database connection failed"
-        });
+        return res.status(503).json({ error: "Database connection failed" });
     }
 });
 
@@ -86,10 +85,7 @@ app.use((err, req, res, next) => {
     }
 
     console.error("Internal ERROR: ", err);
-
-    return res.status(500).json({
-        error: "internal server error"
-    });
+    return res.status(500).json({ error: err.message || "internal server error" });
 });
 
 

@@ -24,11 +24,7 @@ async function importContactsFile(req, res) {
 
         if (isValid === false) {
             console.error(" importContactsFile(): file contacts validation failed");
-
-            return res.status(400).json({
-                success: false,
-                error: "file contacts validation failed",
-            });
+            return res.status(400).json({ error: "file contacts validation failed", });
         }
 
         // Create new if _id does not exist or update if exist
@@ -48,7 +44,6 @@ async function importContactsFile(req, res) {
         console.log(`  Remain Same: ${createdContacts.matchedCount - createdContacts.modifiedCount}`);
 
         return res.status(200).json({
-            success: true,
             message: "Contacts file imported successfully",
             updated: createdContacts.modifiedCount,
             created: createdContacts.upsertedCount,
@@ -57,11 +52,7 @@ async function importContactsFile(req, res) {
 
     } catch (err) {
         console.error(" importContactsFile(): ", err);
-
-        return res.status(500).json({
-            success: false,
-            error: "invalid .json file",
-        });
+        next(new Error("invalid .json file"));
     }
 }
 

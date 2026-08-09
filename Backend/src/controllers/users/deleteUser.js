@@ -3,10 +3,14 @@ import Users from "../../models/user.js";
 
 const deleteUser = async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.userId;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ success: false, error: "Invalid user id" });
+        }
+
+        if (id !== req.params.id) {
+            return res.status(403).json({ error: "access denied: please login first" });
         }
 
         const deletedUser = await Users.findByIdAndDelete(id);
@@ -16,14 +20,13 @@ const deleteUser = async (req, res) => {
         }
 
         return res.status(200).json({
-            success: true,
             message: "User deleted successfully",
-            user: { email: deletedUser.email }
+            user: deletedUser.email
         });
 
     } catch (err) {
         console.error("Delete user error:", err);
-        return res.status(500).json({ error: "Internal server error" });
+        next(err);
     }
 }
 

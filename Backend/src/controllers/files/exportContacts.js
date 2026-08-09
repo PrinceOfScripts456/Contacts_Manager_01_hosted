@@ -10,11 +10,7 @@ const exportContactsFile = async (req, res) => {
 
         if (!contacts.length) {
             console.error(" exportContactsFile(): no contacts found on server");
-
-            return res.status(404).json({
-                success: false,
-                message: 'No contacts found to export'
-            });
+            return res.status(404).json({ error: 'No contacts found to export' });
         }
 
         const filename = `contacts-export-${Date.now()}.json`;
@@ -27,7 +23,6 @@ const exportContactsFile = async (req, res) => {
         console.log(" exportContactsFile():", contacts.length, "contacts exported in file");
 
         return res.status(200).json({
-            success: true,
             exported: contacts.length,
             message: 'Contacts exported successfully',
             fileName: filename,
@@ -37,11 +32,7 @@ const exportContactsFile = async (req, res) => {
 
     } catch (err) {
         console.error(" exportContactsFile(): ", err);
-
-        return res.status(500).json({
-            success: false,
-            message: 'Failed to export contacts'
-        });
+        next(err);
     }
 };
 

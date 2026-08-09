@@ -2,10 +2,7 @@
 const validateUser = (Schema) => async (req, res, next) => {
 
     if (!req.body) {
-        return res.status(400).json({
-            success: false,
-            error: "Invalid or null request"
-        })
+        return res.status(400).json({ error: "Invalid or null request" });
     }
 
     const result = Schema.safeParse(req.body);
@@ -23,10 +20,7 @@ const validateUser = (Schema) => async (req, res, next) => {
             errors[field] = issue.message;
         });
 
-        return res.status(400).json({
-            success: false,
-            errors: errors,
-        });
+        return res.status(400).json({ errors });
     }
 
     console.log(" validate(): Good Request, Proceeding..");
