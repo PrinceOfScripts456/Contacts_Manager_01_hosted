@@ -3,10 +3,17 @@ import path from "path";
 import Contact from "../../models/contact.js";
 import { EXPORT_DIR } from "../../controllers/files/exportPath.js";
 
-const exportContactsFile = async (req, res) => {
+const exportContactsFile = async (req, res, next) => {
 
     try {
-        const contacts = await Contact.find().select("-createdAt -updatedAt -__v").sort({ _id: -1 }).lean();
+        const excludeFields = req.query.mode === "share" ?
+            "-user -createdAt -updatedAt -__v -_id -phones._id -emails._id -dates._id" :
+            "-user -createdAt -updatedAt -__v";
+
+        const contacts = await Contact.find({ user: req.userId })
+            .select(excludeFields)
+            .sort({ _id: -1 })
+            .lean();
 
         if (!contacts.length) {
             console.error(" exportContactsFile(): no contacts found on server");
@@ -26,13 +33,12 @@ const exportContactsFile = async (req, res) => {
             exported: contacts.length,
             message: 'Contacts exported successfully',
             fileName: filename,
-            downloadUrl,
-            filePath
+            downloadUrl
         });
 
     } catch (err) {
         console.error(" exportContactsFile(): ", err);
-        next(err);
+        return next(err);
     }
 };
 

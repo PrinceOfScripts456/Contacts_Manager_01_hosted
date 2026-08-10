@@ -15,7 +15,7 @@ import updateUser from "../controllers/users/updateUser.js";
 import deleteUser from "../controllers/users/deleteUser.js";
 
 
-router.get("/", showRoutes, showAllUsers);
+router.get("/", showRoutes, showAllUsers); // for development i will delete it later
 
 router.post("/login", showRoutes, validateUser(loginShcema), login);
 router.post("/signup", showRoutes, validateUser(signupSchema), signup, login);
@@ -23,9 +23,8 @@ router.post("/signup", showRoutes, validateUser(signupSchema), signup, login);
 router.post("/logout", showRoutes, authUser, logout);
 router.get("/restoreSession", showRoutes, authUser, restoreSession);
 
-router.get("/:id", showRoutes, authUser);
-router.put("/:id", showRoutes, authUser, validateUser(updateUserSchema), updateUser);
-router.delete("/:id", showRoutes, authUser, deleteUser);
+router.patch("/me", showRoutes, authUser, validateUser(updateUserSchema), updateUser);
+router.delete("/me", showRoutes, authUser, deleteUser);
 
 
 export default router;

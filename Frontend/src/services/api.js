@@ -82,7 +82,7 @@ export async function createContact(payload) {
  * PUT /contacts/:id — update a contact. Body is plain JSON.
  */
 export async function updateContact(id, payload) {
-  const res = await api.put(`/contacts/${id}`, payload);
+  const res = await api.patch(`/contacts/${id}`, payload);
   return extractContact(res.data);
 }
 
@@ -126,7 +126,7 @@ export async function requestContactsExport() {
  * attribute, regardless of what headers the original response had.
  */
 export async function downloadFileFromUrl(url, filename = 'export.json') {
-  const res = await axios.get(url, { responseType: 'blob' });
+  const res = await axios.get(url, { responseType: 'blob', withCredentials: true });
   const blobUrl = URL.createObjectURL(res.data);
   const a = document.createElement('a');
   a.href = blobUrl;

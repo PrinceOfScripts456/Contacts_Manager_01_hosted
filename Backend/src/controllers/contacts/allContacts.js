@@ -16,7 +16,8 @@ const fetchContacts = async (req, res) => {
 
         const skip = (page - 1) * limit;
 
-        const filter = {};
+        const filter = { user: req.userId };
+
         if (req.query.search) {
             const escapeRegex = (str) =>
                 str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -50,7 +51,7 @@ const fetchContacts = async (req, res) => {
         ]);
 
 
-        console.log(` fetchContacts(): Sending ${contacts.length} Contacts`, req.query.search ? `, search: '${req.query.search}'` : "");
+        console.log(` fetchContacts(): Sending ${contacts.length} Contacts for user ${req.userId}`, req.query.search ? `, search: '${req.query.search}'` : "");
 
         return res.status(200).json({
             contacts,

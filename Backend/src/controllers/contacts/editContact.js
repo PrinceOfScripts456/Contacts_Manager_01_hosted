@@ -2,7 +2,7 @@ import Contact from "../../models/contact.js";
 import contactSchema from "../../schema/contact.js";
 import validateData from "./validateData.js";
 
-async function updateContact(req, res) {
+async function updateContact(req, res, next) {
 
     try {
 
@@ -28,7 +28,7 @@ async function updateContact(req, res) {
             return res.status(400).json({ error: "validation failed" });
         }
 
-        const editedContact = await Contact.findByIdAndUpdate(req.params.id, data, { returnDocument: 'after' });
+        const editedContact = await Contact.findOneAndUpdate({ _id: req.params.id, user: req.userId }, data, { returnDocument: 'after' });
 
         if (!editedContact) {
             console.log("  updateContact(): contact not found");
@@ -43,8 +43,8 @@ async function updateContact(req, res) {
         });
 
     } catch (err) {
-        console.error(" updateContact(): ", err);
-        next(err);
+        console.error(" updateContact(): ", err.message || err);
+        return next(err);
     }
 }
 

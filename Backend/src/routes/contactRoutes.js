@@ -20,21 +20,17 @@ import { importContactsFile } from "../controllers/files/importContacts.js";
 // Stats
 import { showRoutes } from "../utils/utils.js";
 
-// Miscellaneous
-import clearDB from "../controllers/miscellaneous/clearDB.js";
 
-router.delete("/dev", showRoutes, clearDB);
-
-router.get("/", showRoutes, fetchContacts);
-router.get("/export", showRoutes, exportContactsFile);
-router.get("/export/:filename", showRoutes, downloadExportFile);
-router.get("/:id", showRoutes, viewContactById);
+router.get("/", showRoutes, authUser, fetchContacts);
+router.get("/export", showRoutes, authUser, exportContactsFile);
+router.get("/export/:filename", showRoutes, authUser, downloadExportFile);
+router.get("/:id", showRoutes, authUser, viewContactById);
 
 router.post("/new", showRoutes, validate(contactSchema), authUser, saveContact);
-router.post("/import", showRoutes, validateFile, importContactsFile);
+router.post("/import", showRoutes, validateFile, authUser, importContactsFile);
 
-router.put("/:id", showRoutes, validate(contactSchema), updateContact);
-router.delete("/:id", showRoutes, deleteContactById);
+router.patch("/:id", showRoutes, validate(contactSchema), authUser, updateContact);
+router.delete("/:id", showRoutes, authUser, deleteContactById);
 
 
 export default router;

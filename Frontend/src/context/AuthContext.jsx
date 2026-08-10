@@ -58,14 +58,14 @@ export function AuthProvider({ children }) {
 
   const updateProfile = useCallback(async (payload) => {
     if (!user?.id) throw new Error('Not logged in.');
-    const updatedUser = await authService.updateProfile(user.id, payload);
+    const updatedUser = await authService.updateProfile(payload);
     setUser(updatedUser);
     return updatedUser;
   }, [user]);
 
   const deleteAccount = useCallback(async () => {
     if (!user?.id) throw new Error('Not logged in.');
-    await authService.deleteAccount(user.id);
+    await authService.deleteAccount();
     setUser(null);
   }, [user]);
 

@@ -1,17 +1,16 @@
 import Contact from "../../models/contact.js";
 
-const deleteContactById = async (req, res) => {
+const deleteContactById = async (req, res, next) => {
 
     try {
 
-        const deletedContact = await Contact.findByIdAndDelete(req.params.id);
+        const deletedContact = await Contact.findOneAndDelete({ _id: req.params.id, user: req.userId });
 
         if (!deletedContact) {
             console.error(" deleteContactById(): contact not found");
 
             return res.status(404).json({
-                success: false,
-                message: "Contact not founds"
+                message: "Contact not found."
             });
         }
 
@@ -24,10 +23,7 @@ const deleteContactById = async (req, res) => {
 
     } catch (err) {
         console.error(" deleteContactById(): ", err);
-
-        return res.status(500).json({
-            error: "Error occurred while deleting"
-        });
+        return next(err);
     }
 };
 

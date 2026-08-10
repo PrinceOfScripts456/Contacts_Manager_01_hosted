@@ -1,27 +1,27 @@
 import mongoose from "mongoose";
-import Users from "../../models/user.js";
+import User from "../../models/user.js";
+import Contact from "../../models/contact.js";
 
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res, next) => {
     try {
-        const id = req.userId;
+        const userId = req.userId;
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, error: "Invalid user id" });
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ error: "Invalid user id" });
         }
 
-        if (id !== req.params.id) {
-            return res.status(403).json({ error: "access denied: please login first" });
-        }
-
-        const deletedUser = await Users.findByIdAndDelete(id);
+        const deletedUser = await User.findByIdAndDelete(userId);
 
         if (!deletedUser) {
             return res.status(404).json({ error: "User not found" });
         }
 
+        const { deletedCount } = await Contact.deleteMany({ user: userId });
+
         return res.status(200).json({
-            message: "User deleted successfully",
-            user: deletedUser.email
+            message: "User and their contacts deleted successfully",
+            user: deletedUser.email,
+            contacts: deletedCount
         });
 
     } catch (err) {

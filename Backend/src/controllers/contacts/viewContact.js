@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Contact from "../../models/contact.js";
 
-const viewContactById = async (req, res) => {
+const viewContactById = async (req, res, next) => {
 
     try {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -9,7 +9,7 @@ const viewContactById = async (req, res) => {
             return res.status(400).json({ message: "Invalid contact ID." });
         }
 
-        const contact = await Contact.findById(req.params.id);
+        const contact = await Contact.findOne({ _id: req.params.id, user: req.userId });
 
         if (!contact) {
             console.error(" viewContactById(): Contact not found.");
@@ -21,7 +21,7 @@ const viewContactById = async (req, res) => {
 
     } catch (err) {
         console.error(" viewContactById(): ", err);
-        next(err);
+        return next(err);
     }
 };
 

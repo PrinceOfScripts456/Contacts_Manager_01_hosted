@@ -15,7 +15,7 @@ import api from './api.js';
  *   POST /users/login             { email, password }           -> { user }
  *   POST /users/logout            ()                             -> (2xx, body optional)
  *   GET  /users/restoreSession     ()                             -> { user }
- *   PUT  /users/:id                { username?, email?, currentPassword?, newPassword? } -> { user }
+ *   PUT  /users/me                 { username?, email?, currentPassword?, newPassword? } -> { user }
  *
  * `user` shape: { id, username, email }
  *
@@ -52,17 +52,17 @@ export async function restoreSession() {
   return res.data.user;
 }
 
-export async function updateProfile(userId, payload) {
-  const res = await api.put(`/users/${userId}`, payload);
+export async function updateProfile(payload) {
+  const res = await api.put('/users/me', payload);
   return res.data.user;
 }
 
 /**
- * DELETE /users/:id — permanently deletes the account. The backend reads
+ * DELETE /users/me — permanently deletes the account. The backend reads
  * the id off the authenticated session (`req.userId`) rather than trusting
- * the URL param, so this always deletes the caller's own account.
+ * anything in the URL, so this always deletes the caller's own account.
  */
-export async function deleteAccount(userId) {
-  const res = await api.delete(`/users/${userId}`);
+export async function deleteAccount() {
+  const res = await api.delete('/users/me');
   return res.data;
 }

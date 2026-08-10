@@ -84,7 +84,7 @@ app.use((err, req, res, next) => {
         return res.status(403).json({ error: "Not allowed by CORS" });
     }
 
-    console.error("Internal ERROR: ", err);
+    console.error("Internal ERROR:", err.message || err);
     return res.status(500).json({ error: err.message || "internal server error" });
 });
 

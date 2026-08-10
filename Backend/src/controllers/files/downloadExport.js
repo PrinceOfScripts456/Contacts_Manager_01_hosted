@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import { EXPORT_DIR } from "./exportPath.js";
-import { error } from "console";
 
 const downloadExportFile = (req, res) => {
 

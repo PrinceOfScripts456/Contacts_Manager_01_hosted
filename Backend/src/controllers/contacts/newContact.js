@@ -2,7 +2,7 @@ import Contact from "../../models/contact.js";
 import contactSchema from "../../schema/contact.js";
 import validateData from "./validateData.js";
 
-async function saveContact(req, res) {
+async function saveContact(req, res, next) {
 
     try {
         const now = Date.now();
@@ -40,7 +40,7 @@ async function saveContact(req, res) {
         });
 
     } catch (err) {
-        console.error(" saveContact(): ", err);
+        console.error(" saveContact(): ", err.message || err);
         next(err);
     }
 }
