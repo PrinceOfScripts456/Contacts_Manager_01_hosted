@@ -28,7 +28,7 @@ const exportContactsFile = async (req, res, next) => {
         return res.status(200).send(jsonContacts);
 
     } catch (err) {
-        console.error(" exportContactsFile(): ", err);
+        console.error(" exportContactsFile(): ", err.message || err);
         return next(err);
     }
 };

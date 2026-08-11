@@ -3,7 +3,7 @@ import {
   EditIcon, DeleteIcon, CloseIcon, PhoneIcon, EmailIcon, MsgIcon,
   BdayIcon, WebIcon, LocIcon, NoteIcon, ClockIcon,
 } from '../icons.jsx';
-import { fullName, gradientFor, cap, fmtDate, fmtTimestamp, parseTimestamp, getCreatedAt, getUpdatedAt, isSafeUrl } from '../../utils/helpers';
+import { fullName, gradientFor, cap, fmtDate, fmtTimestamp, getCreatedAt, getUpdatedAt, isSafeUrl } from '../../utils/helpers';
 import './Drawer.css';
 
 function buildDetails(c) {
@@ -40,23 +40,6 @@ export default function ContactDrawer({ contact, open, onClose, onEdit, onDelete
   const details = buildDetails(c);
   const createdAt = fmtTimestamp(getCreatedAt(c));
   const updatedAt = fmtTimestamp(getUpdatedAt(c));
-
-  // Diagnostic only — doesn't affect what renders. getCreatedAt/
-  // getUpdatedAt return '' when a value is missing/unparseable, and the
-  // Timeline section below shows "No date recorded" in that case rather
-  // than a fake date. This checks the RAW contact fields directly to
-  // tell you *why* that happened — check the console after opening a
-  // contact whose Timeline shows "No date recorded".
-  if (!c?.created_at) {
-    console.warn('ContactDrawer: contact has no created_at field. Raw contact:', c);
-  } else if (Number.isNaN(parseTimestamp(c.created_at).getTime())) {
-    console.warn('ContactDrawer: contact.created_at is not a parseable date:', c.created_at);
-  }
-  if (!c?.modified_at) {
-    console.warn('ContactDrawer: contact has no modified_at field. Raw contact:', c);
-  } else if (Number.isNaN(parseTimestamp(c.modified_at).getTime())) {
-    console.warn('ContactDrawer: contact.modified_at is not a parseable date:', c.modified_at);
-  }
 
   return (
     <div className={`drawer-overlay${open ? ' open' : ''}`}>

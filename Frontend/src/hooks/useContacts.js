@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import * as api from '../services/api';
-import { normalize, fullName } from '../utils/helpers';
+import { normalize } from '../utils/helpers';
 import { useToast } from '../components/Toast/ToastProvider';
 import { getErrorMessage, getBlobErrorMessage } from '../utils/errors';
 
@@ -77,7 +77,7 @@ export function useContacts() {
     } catch (err) {
       if (myToken !== requestToken.current) return [];
       console.error('loadContacts():', err);
-      showToast('Could not load contacts. Is the server running?');
+      showToast(getErrorMessage(err, 'Could not load contacts. Is the server running?'));
       return [];
     } finally {
       if (myToken === requestToken.current) {
@@ -129,7 +129,7 @@ export function useContacts() {
     } catch (err) {
       if (myToken !== requestToken.current) return;
       console.error('loadServerBatch():', err);
-      showToast('Could not load that batch of contacts.');
+      showToast(getErrorMessage(err, 'Could not load that batch of contacts.'));
     } finally {
       if (myToken === requestToken.current) setLoadingMore(false);
     }
@@ -146,8 +146,6 @@ export function useContacts() {
    * fixed the "ghost card after edit" bug from earlier in development.
    */
   const createContact = useCallback(async (payload, avatarFile, currentSearch = '') => {
-    // const raw = await api.createContact(payload);
-
     let raw;
     try {
       raw = await api.createContact(payload);
@@ -193,8 +191,6 @@ export function useContacts() {
    * including the same safety net against malformed PUT responses.
    */
   const updateContact = useCallback(async (id, payload, avatarFile, currentSearch = '') => {
-    // const raw = await api.updateContact(id, payload);
-
     let raw;
     try {
       raw = await api.updateContact(id, payload);
@@ -336,6 +332,3 @@ export function useContacts() {
     importContacts,
   };
 }
-
-// Re-exported for convenience where only the name formatter is needed.
-export { fullName };

@@ -20,7 +20,7 @@ const viewContactById = async (req, res, next) => {
         return res.status(200).json({ contact });
 
     } catch (err) {
-        console.error(" viewContactById(): ", err);
+        console.error(" viewContactById(): ", err.message || err);
         return next(err);
     }
 };

@@ -4,18 +4,22 @@ A full-stack contacts manager with a React frontend and an Express/MongoDB REST 
 
 ## Features
 
-- **Full CRUD** — create, view, edit, and delete contacts
-- **Rich contact fields** — multiple labeled phone numbers, emails, and dates per contact, plus company, job title, website, address, notes, and avatar
+- **Accounts** — signup/login with hashed passwords, sessions kept in an httpOnly JWT cookie (not accessible to frontend JS), account settings (change username/email/password, delete account)
+- **Full CRUD** — create, view, edit, and delete contacts, scoped per-user
+- **Rich contact fields** — multiple labeled phone numbers, emails, and dates per contact, plus company, job title, website, address, and notes
 - **Search** — server-side search, so filtering happens on the backend rather than in the browser
 - **Multiple views** — card, compact, and full list layouts, with pagination
 - **Import / Export** — bulk import contacts from a `.json` file, export all contacts to a downloadable `.json` file
 - **Light/dark theme**
 - **Server-side validation** — requests validated with [Zod](https://zod.dev/) before hitting the database
+- **Rate limiting** — login and signup are rate-limited against brute-force attempts
+
+> **Note:** avatar photo upload has UI support on the frontend, but the backend endpoint for it isn't implemented yet.
 
 ## Tech Stack
 
 **Frontend:** React 19, React Router, Vite, Axios  
-**Backend:** Node.js, Express 5, MongoDB with Mongoose, Zod, Multer, EJS
+**Backend:** Node.js, Express 5, MongoDB with Mongoose, Zod, JWT + bcrypt, Multer, EJS
 
 ## Getting Started
 
@@ -35,8 +39,11 @@ Create a `.env` file in `Backend/`:
 ```bash
 PORT=5000
 MONGO_URI=mongodb_connection_string
-FRONTEND_URLS=link_1,link_2         # white listed origins for CORS
+FRONTEND_URLS=link_1,link_2         # comma-separated, whitelisted origins for CORS
+JWT_SECRET=a_long_random_secret     # signs/verifies login session tokens — required
 ```
+
+`JWT_SECRET` should be a long, random string kept out of version control. Anyone with this value can forge valid login sessions, so use a fresh one per environment (dev/staging/production) and never commit it.
 
 Start the server:
 
@@ -147,18 +154,32 @@ npm run dev
 
 ## API Routes
 
-| Method | Route                        |Description                             |
-|--------|------------------------------|----------------------------------------|
-| GET    | `/contacts`                  | Fetch all contacts                     |
-| GET    | `/contacts/:id`              | Fetch a single contact                 |
-| POST   | `/contacts/new`              | Create a contact                       |
-| PUT    | `/contacts/:id`              | Update a contact                       |
-| DELETE | `/contacts/:id`              | Delete a contact                       |
-| GET    | `/contacts/export`           | Export contacts as JSON                |
-| GET    | `/contacts/export/:filename` | Download a previously generated export |
-| POST   | `/contacts/import`           | Import contacts from JSON              |
+All `/contacts` routes require a valid session (the `token` cookie set by login/signup) and only ever operate on the logged-in user's own contacts.
 
-`GET /contacts` accepts `?search=`, `?page=`, and `?limit=` query params.
+### Contacts
+
+| Method | Route               | Description                                          |
+|--------|---------------------|-------------------------------------------------------|
+| GET    | `/contacts`         | Fetch contacts (paginated). Accepts `?search=`, `?page=`, `?limit=` |
+| GET    | `/contacts/:id`     | Fetch a single contact                                |
+| POST   | `/contacts/new`     | Create a contact                                      |
+| PATCH  | `/contacts/:id`     | Update a contact                                      |
+| DELETE | `/contacts/:id`     | Delete a contact                                      |
+| GET    | `/contacts/export`  | Export contacts as a downloadable JSON file. Accepts `?mode=backup\|share` |
+| POST   | `/contacts/import`  | Import contacts from a `.json` file (multipart, field name `file`) |
+
+### Users
+
+| Method | Route                    | Auth required | Description                                   |
+|--------|--------------------------|:--------------:|------------------------------------------------|
+| POST   | `/users/signup`          | No             | Create an account and log in                   |
+| POST   | `/users/login`           | No             | Log in, sets the `token` session cookie         |
+| POST   | `/users/logout`          | Yes            | Clears the session cookie                       |
+| GET    | `/users/restoreSession`  | Yes            | Returns the current user if the session cookie is valid |
+| PATCH  | `/users/me`              | Yes            | Update username/email, or change password (`currentPassword` + `newPassword`) |
+| DELETE | `/users/me`              | Yes            | Permanently delete the account and all of its contacts |
+
+> Avatar upload (`POST /contacts/:id/avatar`) is referenced by the frontend but not yet implemented on the backend — see the note under Features.
 
 ## Testing
 

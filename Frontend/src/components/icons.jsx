@@ -1,6 +1,5 @@
-// Direct ports of the inline SVG icon helper functions from the original
-// app.js. Each is a small functional component so they can be used as
-// normal JSX elements: <PhoneIcon size={13} />
+// Small SVG icon components, each usable as a normal JSX element:
+// <PhoneIcon size={13} />
 
 function Svg({ size = 15, children }) {
   return (

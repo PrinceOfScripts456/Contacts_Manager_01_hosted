@@ -14,11 +14,11 @@ const signup = async (req, res, next) => {
 
         const createdUser = await Users.create(user);
 
-        console.log("User Created: ", createdUser);
+        console.log("User Created: ", createdUser.email);
         next();
 
     } catch (err) {
-        console.error("Signup error:", err.message);
+        console.error("Signup error:", err.message || err);
 
         if (err.code === 11000) {
             return res.status(409).json({ error: "Email already in use" });

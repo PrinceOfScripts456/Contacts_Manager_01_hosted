@@ -15,7 +15,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function validateProfile({ username, email }) {
   const errors = {};
   if (!username.trim()) errors.username = 'Username can\'t be empty.';
-  else if (username.trim().length < 2) errors.username = 'Username must be at least 2 characters.';
+  else if (username.trim().length < 3) errors.username = 'Username must be at least 3 characters.';
   if (!email.trim()) errors.email = 'Email can\'t be empty.';
   else if (!EMAIL_RE.test(email.trim())) errors.email = 'Enter a valid email address.';
   return errors;

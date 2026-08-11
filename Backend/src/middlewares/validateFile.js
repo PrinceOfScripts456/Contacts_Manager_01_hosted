@@ -11,7 +11,7 @@ const validateFile = (req, res, next) => {
                 return res.status(400).json({ error: "File is too large. Maximum size is 5 MB." });
             }
 
-            console.error(" validateFile(): ", err);
+            console.error(" validateFile():", err.message || err);
             return res.status(400).json({ error: "file validation failed" });
         }
 

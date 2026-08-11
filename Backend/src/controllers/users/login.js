@@ -23,7 +23,7 @@ const login = async (req, res, next) => {
             httpOnly: true,
             secure: true,
             sameSite: "none",
-            maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
+            maxAge: 1000 * 60 * 60 * 24 * 3 // 3 days
         });
 
         return res.status(200).json({
@@ -31,6 +31,7 @@ const login = async (req, res, next) => {
         });
 
     } catch (err) {
+        console.error(" login():", err.message || err);
         return next(err);
     }
 }

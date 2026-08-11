@@ -34,6 +34,7 @@ app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+app.set("trust proxy", 1);
 app.engine("ejs", engine);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
@@ -60,7 +61,7 @@ app.use((err, req, res, next) => {
     }
 
     console.error("Internal ERROR:", err.message || err);
-    return res.status(500).json({ error: err.message || "internal server error" });
+    return res.status(500).json({ error: "internal server error" });
 });
 
 

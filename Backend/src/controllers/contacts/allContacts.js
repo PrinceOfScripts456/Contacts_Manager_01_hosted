@@ -66,7 +66,7 @@ const fetchContacts = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(" fetchContacts():", err);
+        console.error(" fetchContacts():", err.message || err);
 
         return res.status(500).json({
             error: 'Failed to fetch contacts'

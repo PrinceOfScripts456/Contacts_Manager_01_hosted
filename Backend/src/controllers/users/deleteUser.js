@@ -18,6 +18,12 @@ const deleteUser = async (req, res, next) => {
 
         const { deletedCount } = await Contact.deleteMany({ user: userId });
 
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+        });
+
         return res.status(200).json({
             message: "User and their contacts deleted successfully",
             user: deletedUser.email,
@@ -25,8 +31,8 @@ const deleteUser = async (req, res, next) => {
         });
 
     } catch (err) {
-        console.error("Delete user error:", err);
-        next(err);
+        console.error("Delete user error:", err.message || err);
+        return next(err);
     }
 }
 

@@ -41,11 +41,12 @@ const updateUser = async (req, res, next) => {
         });
 
     } catch (err) {
+        console.error("Update user error:", err.message || err);
+
         if (err.code === 11000) {
             return res.status(409).json({ error: "Email already in use" });
         }
-        console.error("Update user error:", err);
-        next(err);
+        return next(err);
     }
 };
 

@@ -13,7 +13,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function validate({ username, email, password, confirmPassword }) {
   const errors = {};
   if (!username.trim()) errors.username = 'Enter a username.';
-  else if (username.trim().length < 2) errors.username = 'Username must be at least 2 characters.';
+  else if (username.trim().length < 3) errors.username = 'Username must be at least 3 characters.';
   if (!email.trim()) errors.email = 'Enter your email.';
   else if (!EMAIL_RE.test(email.trim())) errors.email = 'Enter a valid email address.';
   if (!password) errors.password = 'Create a password.';

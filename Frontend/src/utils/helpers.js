@@ -1,6 +1,4 @@
 // Shared pure helper functions used across components.
-// These are direct ports of the helper functions from the original app.js —
-// same behavior, same output, just grouped here for reuse.
 
 export const PALETTES = [
   ['#6B8BFF', '#A78BFA'], ['#34D399', '#06B6D4'], ['#F59E0B', '#EF4444'],

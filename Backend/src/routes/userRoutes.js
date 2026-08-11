@@ -7,7 +7,6 @@ import authUser from "../middlewares/authUser.js"
 import { showRoutes } from "../utils/utils.js";
 import { loginLimit, signupLimit } from "../middlewares/rateLimiter.js";
 
-import showAllUsers from "../controllers/users/showUsers.js";
 import signup from "../controllers/users/signup.js";
 import login from "../controllers/users/login.js";
 import logout from "../controllers/users/logout.js";
@@ -15,8 +14,6 @@ import restoreSession from "../controllers/users/restoreSession.js";
 import updateUser from "../controllers/users/updateUser.js";
 import deleteUser from "../controllers/users/deleteUser.js";
 
-
-router.get("/", showRoutes, showAllUsers); // for development i will delete it later
 
 router.post("/login", showRoutes, loginLimit, validateUser(loginShcema), login);
 router.post("/signup", showRoutes, signupLimit, validateUser(signupSchema), signup, login);

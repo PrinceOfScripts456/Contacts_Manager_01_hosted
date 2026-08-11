@@ -41,6 +41,13 @@ export default function Topbar({
 
   function handleImportFileChange(e) {
     const file = e.target.files[0];
+    // The browser returns focus to this input as soon as the native file
+    // picker closes, which happens right as `onImport` flips the parent
+    // into its blocked/aria-hidden state. Blur first so focus isn't left
+    // on an element inside a container that's about to become
+    // aria-hidden (avoids the "Blocked aria-hidden on an element because
+    // its descendant retained focus" console warning).
+    e.target.blur();
     if (file) onImport(file);
     e.target.value = '';
   }

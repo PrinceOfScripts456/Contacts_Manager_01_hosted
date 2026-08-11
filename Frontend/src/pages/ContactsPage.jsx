@@ -228,9 +228,21 @@ export default function ContactsPage() {
   const isBlocked = exporting || importing;
   const blockingMessage = exporting ? 'Preparing your export…' : 'Importing contacts…';
 
+  // Safety net: `.app-shell` gets aria-hidden + inert while blocked, but
+  // if anything inside it still has focus at that instant (e.g. focus
+  // returning to a button/input right as the state flips), the browser
+  // logs "Blocked aria-hidden on an element because its descendant
+  // retained focus". Explicitly move focus out first so aria-hidden is
+  // never applied to a subtree that still contains the focused element.
+  useEffect(() => {
+    if (isBlocked && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }, [isBlocked]);
+
   return (
     <>
-      <div className={`app-shell${isBlocked ? ' app-shell-blocked' : ''}`} aria-hidden={isBlocked} inert={isBlocked ? '' : undefined}>
+      <div className={`app-shell${isBlocked ? ' app-shell-blocked' : ''}`} aria-hidden={isBlocked} inert={isBlocked}>
         <Topbar
           onQueryChange={setQuery}
           view={view}

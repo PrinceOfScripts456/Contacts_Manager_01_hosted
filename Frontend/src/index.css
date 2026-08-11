@@ -360,6 +360,14 @@ body {
     line-height: 1.4;
 }
 
+/* Messages containing an actual "\n" (e.g. a rate-limit error's "X left"
+   line) need line breaks preserved rather than collapsed — `pre-line`
+   keeps the \n as a real break while still wrapping/collapsing any other
+   whitespace normally. Always paired with .toast-wrap-text above. */
+.toast.toast-multiline {
+    white-space: pre-line;
+}
+
 @media (max-width: 480px) {
     .toast-wrap {
         bottom: 18px;

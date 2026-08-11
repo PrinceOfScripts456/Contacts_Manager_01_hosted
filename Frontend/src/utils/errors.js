@@ -28,16 +28,6 @@ export function getErrorMessage(err, fallback = 'Something went wrong. Please tr
 }
 
 /**
- * Some responses may carry a non-fatal warning alongside a successful
- * result, e.g. { data: {...}, warn: "..." }. This pulls that out so
- * callers can surface it (as a toast, etc.) without treating the call
- * as a failure.
- */
-export function getWarnMessage(res) {
-  return res?.warn || null;
-}
-
-/**
  * Same job as getErrorMessage, but for requests made with
  * `responseType: 'blob'` (e.g. file export/download). When those fail,
  * axios still resolves `err.response.data` as a Blob — even for a JSON

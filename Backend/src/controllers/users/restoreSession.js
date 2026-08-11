@@ -15,8 +15,8 @@ const restoreSession = async (req, res, next) => {
         });
 
     } catch (err) {
-        console.error("Restore session error:", err);
-        next(err);
+        console.error("Restore session error:", err.message || err);
+        return next(err);
     }
 }
 

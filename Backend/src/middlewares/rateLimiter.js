@@ -24,7 +24,7 @@ const loginLimit = rateLimit({
 
 const signupLimit = rateLimit({
     windowMs: 30 * 60 * 1000, // 30 min
-    limit: 6,
+    limit: 4,
 
     standardHeaders: "draft-8",
     legacyHeaders: false,
@@ -32,4 +32,16 @@ const signupLimit = rateLimit({
     handler: rateLimitHandler
 });
 
-export { loginLimit, signupLimit };
+const contactsLimit = rateLimit({
+    windowMs: 1000 * 60 * 15, // 15 min
+    limit: 30,
+
+    keyGenerator: (req) => String(req.userId),
+
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+
+    handler: rateLimitHandler
+});
+
+export { loginLimit, signupLimit, contactsLimit };

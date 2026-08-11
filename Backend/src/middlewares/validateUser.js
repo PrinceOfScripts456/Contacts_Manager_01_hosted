@@ -1,6 +1,8 @@
 
 const validateUser = (Schema) => async (req, res, next) => {
 
+    const SENSITIVE_FIELDS = ["password", "currentPassword", "newPassword"];
+
     if (!req.body) {
         return res.status(400).json({ error: "Invalid or null request" });
     }
@@ -8,10 +10,12 @@ const validateUser = (Schema) => async (req, res, next) => {
     const result = Schema.safeParse(req.body);
 
     if (!result.success) {
+        const path = result.error.issues[0].path[0];
+
         console.error(" validateUser(): invalid request ('zod()')");
-        console.error(`  zod(): ${result.error.issues[0].path}`);
+        console.error(`  zod(): ${path}`);
         console.error(`       : ${result.error.issues[0].message}`);
-        console.error(`       : ${req.body[result.error.issues[0].path]}`);
+        console.error(`       : ${SENSITIVE_FIELDS.includes(path) ? '[sensitive]' : req.body[path]}`);
 
         const errors = {};
 
@@ -26,7 +30,7 @@ const validateUser = (Schema) => async (req, res, next) => {
     console.log(" validate(): Good Request, Proceeding..");
 
     req.body = result.data;
-    next();
+    return next();
 }
 
 export default validateUser;

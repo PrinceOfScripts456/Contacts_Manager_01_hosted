@@ -22,7 +22,7 @@ const deleteContactById = async (req, res, next) => {
         });
 
     } catch (err) {
-        console.error(" deleteContactById(): ", err);
+        console.error(" deleteContactById(): ", err.message || err);
         return next(err);
     }
 };

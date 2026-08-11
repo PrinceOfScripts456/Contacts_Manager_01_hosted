@@ -6,6 +6,7 @@ import contactSchema from "../schema/contact.js";
 import validate from "../middlewares/validateContact.js";
 import validateFile from "../middlewares/validateFile.js";
 import authUser from "../middlewares/authUser.js";
+import { contactsLimit } from "../middlewares/rateLimiter.js";
 
 // Route controllers
 import { fetchContacts } from "../controllers/contacts/allContacts.js";
@@ -19,16 +20,18 @@ import { importContactsFile } from "../controllers/files/importContacts.js";
 // Stats
 import { showRoutes } from "../utils/utils.js";
 
+router.use(authUser);
+router.use(contactsLimit);
 
-router.get("/", showRoutes, authUser, fetchContacts);
-router.get("/export", showRoutes, authUser, exportContactsFile);
-router.get("/:id", showRoutes, authUser, viewContactById);
+router.get("/", showRoutes, fetchContacts);
+router.get("/export", showRoutes, exportContactsFile);
+router.get("/:id", showRoutes, viewContactById);
 
-router.post("/new", showRoutes, validate(contactSchema), authUser, saveContact);
-router.post("/import", showRoutes, validateFile, authUser, importContactsFile);
+router.post("/new", showRoutes, validate(contactSchema), saveContact);
+router.post("/import", showRoutes, validateFile, importContactsFile);
 
-router.patch("/:id", showRoutes, validate(contactSchema), authUser, updateContact);
-router.delete("/:id", showRoutes, authUser, deleteContactById);
+router.patch("/:id", showRoutes, validate(contactSchema), updateContact);
+router.delete("/:id", showRoutes, deleteContactById);
 
 
 export default router;

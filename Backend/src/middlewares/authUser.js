@@ -21,6 +21,8 @@ const authenticate = (req, res, next) => {
         req.userId = decoded.id;
         next();
     } catch (err) {
+        console.error(" authenticate():", err.message || err);
+
         if (err.name === 'TokenExpiredError') {
             return res.status(401).json({ error: 'Session expired' });
         }
