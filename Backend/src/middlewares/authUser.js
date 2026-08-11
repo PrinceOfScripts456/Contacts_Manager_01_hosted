@@ -1,8 +1,4 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET;
 
 const authenticate = (req, res, next) => {
 
@@ -17,13 +13,11 @@ const authenticate = (req, res, next) => {
         token = authHeader.split(' ')[1];
     }
     else {
-        return res.status(401).json({
-            error: 'User not logged in or invalid token'
-        });
+        return res.status(401).json({ error: 'User not logged in or invalid token' });
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ["HS256"] });
         req.userId = decoded.id;
         next();
     } catch (err) {

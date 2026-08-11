@@ -1,7 +1,4 @@
-import fs from "fs";
-import path from "path";
 import Contact from "../../models/contact.js";
-import { EXPORT_DIR } from "../../controllers/files/exportPath.js";
 
 const exportContactsFile = async (req, res, next) => {
 
@@ -21,20 +18,14 @@ const exportContactsFile = async (req, res, next) => {
         }
 
         const filename = `contacts-export-${Date.now()}.json`;
-        const filePath = path.join(EXPORT_DIR, filename);
-
-        await fs.promises.writeFile(filePath, JSON.stringify(contacts, null, 2));
-
-        const downloadUrl = `/contacts/export/${filename}`;
+        const jsonContacts = JSON.stringify(contacts, null, 2);
 
         console.log(" exportContactsFile():", contacts.length, "contacts exported in file");
 
-        return res.status(200).json({
-            exported: contacts.length,
-            message: 'Contacts exported successfully',
-            fileName: filename,
-            downloadUrl
-        });
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        res.setHeader("message", `${contacts.length} contacts exported successfully`);
+        return res.status(200).send(jsonContacts);
 
     } catch (err) {
         console.error(" exportContactsFile(): ", err);

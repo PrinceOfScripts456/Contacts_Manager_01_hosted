@@ -42,6 +42,28 @@ export function cap(s) {
   return s ? s[0].toUpperCase() + s.slice(1) : '';
 }
 
+// Builds a today's-date filename like "contacts-export-11-08-2026.json"
+// (dd-mm-yyyy) — used as the download name when the backend doesn't send
+// a usable one via Content-Disposition, and as the placeholder/default
+// shown in the export dialog when the user leaves the filename blank.
+export function todayDDMMYYYY() {
+  const d = new Date();
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}-${mm}-${yyyy}`;
+}
+
+// Turns whatever the user typed as an export filename into a safe,
+// guaranteed-.json filename: strips characters that aren't safe in a
+// downloaded filename, and makes sure it ends in ".json" exactly once
+// regardless of whether the user included the extension themselves.
+export function sanitizeExportFilename(name) {
+  const trimmed = (name || '').trim().replace(/\.json$/i, '');
+  const safe = trimmed.replace(/[\\/:*?"<>|]+/g, '').trim();
+  return safe ? `${safe}.json` : '';
+}
+
 export function fmtDate(s) {
   if (!s) return '';
   try {

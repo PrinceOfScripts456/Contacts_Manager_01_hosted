@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { todayDDMMYYYY, sanitizeExportFilename } from '../utils/helpers.js';
 
 // Base URL comes from the environment so it's easy to point at a different
 // backend (staging, production, etc.) without touching code — see .env
@@ -95,39 +96,60 @@ export async function deleteContact(id) {
 }
 
 /**
- * GET /contacts/export — the backend prepares the export file
- * asynchronously and responds with JSON (not the file itself). A 2xx
- * status means success (no `success` flag in the body); the payload may
- * be bare or wrapped under `data`, and may include `exported`,
- * `downloadUrl`, `message`, and/or `warn` depending on the situation.
- * The caller uses `downloadUrl` to trigger the actual file download.
- * `downloadUrl` may be a full URL or a path relative to the API base —
- * both are resolved correctly here.
+ * GET /contacts/export?mode=backup|share — the backend does NOT do the
+ * "prepare async, get a downloadUrl" pattern. It builds the export
+ * synchronously and streams the JSON file straight back in the response
+ * body, with `Content-Disposition: attachment;
+ * filename="contacts-export-<ts>.json"` and a `message` header (both
+ * exposed via CORS `exposedHeaders`).
+ *
+ * `mode` controls what the backend includes:
+ *  - "backup": contacts keep their _id, so re-importing the same file
+ *    later updates the existing contacts instead of duplicating them.
+ *  - "share":  contacts are stripped of _id (and sub-document _ids), so
+ *    another user can import the file without colliding with this
+ *    account's contact ids. Importing a "share" file more than once WILL
+ *    duplicate contacts, since there's no id for the backend to match
+ *    against.
+ *
+ * So this fetches the file as a blob directly and triggers the download
+ * itself (a plain `<a href>` pointed at this URL isn't reliable across
+ * browsers for forcing a save-as, and it wouldn't carry the auth cookie
+ * either since that requires `withCredentials`).
+ *
+ * Filename resolution order:
+ *  1. `customFilename`, if the user typed one in the export dialog.
+ *  2. The `Content-Disposition` header from the backend, if present.
+ *  3. A locally-generated fallback, dated dd-mm-yyyy (not a raw
+ *     Date.now() timestamp) so a bare download still gets a readable name.
+ *
+ * `exported` count isn't sent by this route, so the caller falls back to
+ * `pagination.total`.
  */
-export async function requestContactsExport() {
-  const res = await api.get('/contacts/export');
-  const body = res.data?.data && typeof res.data.data === 'object' ? res.data.data : (res.data || {});
-  const { exported, downloadUrl, message } = body;
-  const warn = res.data?.warn;
-  const resolvedUrl = downloadUrl
-    ? new URL(downloadUrl, API_URL).toString()
-    : null;
-  return { exported, downloadUrl: resolvedUrl, message, warn };
+export async function requestContactsExport({ mode = 'backup', customFilename = '' } = {}) {
+  const res = await api.get('/contacts/export', {
+    params: { mode },
+    responseType: 'blob',
+  });
+
+  const disposition = res.headers['content-disposition'] || '';
+  const match = disposition.match(/filename="?([^"]+)"?/);
+
+  const sanitizedCustom = sanitizeExportFilename(customFilename);
+  const filename = sanitizedCustom || match?.[1] || `contacts-export-${todayDDMMYYYY()}.json`;
+
+  const message = res.headers['message'] || null;
+
+  return { blob: res.data, filename, message };
 }
 
 /**
- * Fetches whatever's at `url` as a blob and forces a real browser
- * download. An <a download> tag alone isn't reliable here — if the
- * server doesn't send a `Content-Disposition: attachment` header (or the
- * URL is treated as a plain navigation), Chrome just opens the file
- * inline instead of downloading it. Pulling the bytes down ourselves and
- * handing the browser a local blob: URL sidesteps that entirely, since a
- * blob: URL is always treated as a download when given a `download`
- * attribute, regardless of what headers the original response had.
+ * Hands the browser a blob and forces a real download (rather than
+ * navigating to/opening it inline). Used for both the contacts export
+ * (blob already in hand) and any other blob-shaped downloads.
  */
-export async function downloadFileFromUrl(url, filename = 'export.json') {
-  const res = await axios.get(url, { responseType: 'blob', withCredentials: true });
-  const blobUrl = URL.createObjectURL(res.data);
+export function downloadBlob(blob, filename = 'export.json') {
+  const blobUrl = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = blobUrl;
   a.download = filename;

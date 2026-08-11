@@ -194,6 +194,30 @@
     line-height: 1.4;
 }
 
+.auth-session-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--r);
+    background: var(--accent-soft);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 18px;
+}
+
+.auth-session-banner strong {
+    font-weight: 700;
+}
+
+.auth-session-banner-btn {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    font-size: 13px;
+}
+
 .auth-error-banner {
     display: flex;
     align-items: flex-start;

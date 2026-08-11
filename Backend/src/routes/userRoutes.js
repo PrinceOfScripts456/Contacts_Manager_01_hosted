@@ -5,6 +5,7 @@ import { signupSchema, loginShcema, updateUserSchema } from "../schema/user.js";
 import validateUser from "../middlewares/validateUser.js";
 import authUser from "../middlewares/authUser.js"
 import { showRoutes } from "../utils/utils.js";
+import { loginLimit, signupLimit } from "../middlewares/rateLimiter.js";
 
 import showAllUsers from "../controllers/users/showUsers.js";
 import signup from "../controllers/users/signup.js";
@@ -17,8 +18,8 @@ import deleteUser from "../controllers/users/deleteUser.js";
 
 router.get("/", showRoutes, showAllUsers); // for development i will delete it later
 
-router.post("/login", showRoutes, validateUser(loginShcema), login);
-router.post("/signup", showRoutes, validateUser(signupSchema), signup, login);
+router.post("/login", showRoutes, loginLimit, validateUser(loginShcema), login);
+router.post("/signup", showRoutes, signupLimit, validateUser(signupSchema), signup, login);
 
 router.post("/logout", showRoutes, authUser, logout);
 router.get("/restoreSession", showRoutes, authUser, restoreSession);

@@ -48,7 +48,7 @@ async function importContactsFile(req, res, next) {
                                 user: req.userId
                             },
                             update: { $set: { ...data, user: req.userId } },
-                            upsert: true,
+                            upsert: true
                         }
                     }
                 }),

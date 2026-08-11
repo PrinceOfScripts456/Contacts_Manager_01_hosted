@@ -14,7 +14,6 @@ import { saveContact } from "../controllers/contacts/newContact.js";
 import { updateContact } from "../controllers/contacts/editContact.js";
 import { deleteContactById } from "../controllers/contacts/deleteContact.js";
 import { exportContactsFile } from "../controllers/files/exportContacts.js";
-import { downloadExportFile } from "../controllers/files/downloadExport.js";
 import { importContactsFile } from "../controllers/files/importContacts.js";
 
 // Stats
@@ -23,7 +22,6 @@ import { showRoutes } from "../utils/utils.js";
 
 router.get("/", showRoutes, authUser, fetchContacts);
 router.get("/export", showRoutes, authUser, exportContactsFile);
-router.get("/export/:filename", showRoutes, authUser, downloadExportFile);
 router.get("/:id", showRoutes, authUser, viewContactById);
 
 router.post("/new", showRoutes, validate(contactSchema), authUser, saveContact);

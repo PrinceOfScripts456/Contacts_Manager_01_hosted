@@ -78,7 +78,7 @@ export default function SignupPage() {
           {formError && (
             <div className="auth-error-banner">
               <AlertIcon size={16} />
-              <span>{formError}</span>
+              <span style={{ whiteSpace: 'pre-line' }}>{formError}</span>
             </div>
           )}
 

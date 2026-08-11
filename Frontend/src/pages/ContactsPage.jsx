@@ -7,6 +7,7 @@ import Pagination from '../components/ContactGrid/Pagination.jsx';
 import ContactDrawer from '../components/Drawer/ContactDrawer.jsx';
 import ContactModal from '../components/ContactModal/ContactModal.jsx';
 import ConfirmDialog from '../components/ConfirmDialog/ConfirmDialog.jsx';
+import ExportOptionsDialog from '../components/ExportOverlay/ExportOptionsDialog.jsx';
 import BlockingOverlay from '../components/BlockingOverlay/BlockingOverlay.jsx';
 import { useContacts } from '../hooks/useContacts';
 import { useTheme } from '../hooks/useTheme';
@@ -50,6 +51,8 @@ export default function ContactsPage() {
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
+
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   // Sends the settled search term to the backend whenever it changes.
   // An empty string still triggers a real request (the backend's own
@@ -201,6 +204,19 @@ export default function ContactsPage() {
 
   const deleteTarget = contacts.find((c) => c.id === pendingDeleteId);
 
+  function openExportDialog() {
+    setExportDialogOpen(true);
+  }
+
+  function cancelExport() {
+    setExportDialogOpen(false);
+  }
+
+  function confirmExport({ mode, filename }) {
+    setExportDialogOpen(false);
+    exportContacts({ mode, filename });
+  }
+
   // Mirrors the original single keydown listener that closed the contact
   // modal, confirm modal, and drawer all at once on Escape.
   useEscapeKey(() => {
@@ -222,7 +238,7 @@ export default function ContactsPage() {
           pendingDark={pendingDark}
           onToggleTheme={toggleTheme}
           onImport={(file) => importContacts(file, query)}
-          onExport={exportContacts}
+          onExport={openExportDialog}
           onAddContact={openAddModal}
         />
 
@@ -284,6 +300,12 @@ export default function ContactsPage() {
           message={deleteTarget ? `"${fullName(deleteTarget)}" will be permanently removed.` : ''}
           onCancel={cancelDelete}
           onConfirm={confirmDelete}
+        />
+
+        <ExportOptionsDialog
+          open={exportDialogOpen}
+          onCancel={cancelExport}
+          onConfirm={confirmExport}
         />
       </div>
 

@@ -1,0 +1,91 @@
+/* ─── Export options dialog ─── */
+.export-mode-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.export-mode-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--r);
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+.export-mode-option:hover {
+    border-color: var(--border2);
+}
+
+.export-mode-option.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.export-mode-option input[type="radio"] {
+    margin-top: 3px;
+    accent-color: var(--accent);
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.export-mode-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.export-mode-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.export-mode-desc {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--text2);
+}
+
+.export-filename-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.export-filename-optional {
+    font-weight: 400;
+    color: var(--text3);
+}
+
+.export-filename-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.export-filename-input {
+    padding-left: 14px;
+    padding-right: 54px;
+}
+
+.export-filename-suffix {
+    position: absolute;
+    right: 14px;
+    font-size: 13px;
+    color: var(--text3);
+    pointer-events: none;
+    font-family: var(--mono);
+}
+
+.export-filename-hint {
+    font-size: 12px;
+    color: var(--text3);
+}

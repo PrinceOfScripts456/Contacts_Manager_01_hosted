@@ -1,0 +1,107 @@
+/* ─── Session gate (first-launch "restoring session…" screen) ─── */
+.session-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    background: var(--bg);
+    animation: session-gate-fade-in .25s var(--ease);
+}
+
+.session-gate-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--r-lg);
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: session-gate-pulse 1.6s var(--ease) infinite;
+}
+
+.session-gate-spinner {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    animation: session-gate-spin .8s linear infinite;
+}
+
+.session-gate-text {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: .01em;
+}
+
+@keyframes session-gate-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes session-gate-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.06);
+        opacity: .85;
+    }
+}
+
+@keyframes session-gate-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .session-gate-mark,
+    .session-gate-spinner {
+        animation: none;
+    }
+
+    .session-gate-spinner {
+        border-top-color: var(--border);
+    }
+}
+
+/* ─── Offline / can't-reach-server variant ─── */
+.session-gate-error {
+    gap: 16px;
+    padding: 0 24px;
+    text-align: center;
+}
+
+.session-gate-mark-error {
+    background: var(--danger-soft);
+    color: var(--danger);
+    animation: none;
+}
+
+.session-gate-error-text {
+    max-width: 340px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text2);
+}
+
+.session-gate-retry {
+    margin-top: 4px;
+}

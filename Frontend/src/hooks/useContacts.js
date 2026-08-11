@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import * as api from '../services/api';
 import { normalize, fullName } from '../utils/helpers';
 import { useToast } from '../components/Toast/ToastProvider';
-import { getErrorMessage } from '../utils/errors';
+import { getErrorMessage, getBlobErrorMessage } from '../utils/errors';
 
 // How many contacts to request from the backend in one batch. This is
 // unrelated to how many render on screen at once (see PAGE_SIZE in
@@ -246,7 +246,7 @@ export function useContacts() {
     return target;
   }, [contacts, showToast]);
 
-  const exportContacts = useCallback(async () => {
+  const exportContacts = useCallback(async ({ mode = 'backup', filename = '' } = {}) => {
     if (pagination.total === 0) {
       showToast('Nothing to export.');
       return;
@@ -254,48 +254,26 @@ export function useContacts() {
     setExporting(true);
     const dismissPreparing = showToast('Preparing your export…', 30000);
     try {
-      const { exported, downloadUrl, message, warn } = await api.requestContactsExport();
+      // The backend streams the JSON file directly in the response body
+      // (no separate "prepare, then fetch a downloadUrl" step) — this
+      // fetches it as a blob and hands it straight to the browser.
+      const { blob, filename: resolvedFilename, message } = await api.requestContactsExport({
+        mode,
+        customFilename: filename,
+      });
       dismissPreparing();
 
-      // A resolved call means the backend responded with a success status;
-      // the only thing left to check here is whether it actually gave us
-      // something to download.
-      if (!downloadUrl) {
-        showToast(message || 'Could not export contacts.');
-        return;
-      }
+      api.downloadBlob(blob, resolvedFilename);
 
-      if (warn) showToast(warn, 4500);
-
-      // Force an actual file download rather than letting the browser
-      // navigate to/open the URL inline (which is what happened with a
-      // plain <a href> pointed straight at the backend's downloadUrl).
-      const filename = `contacts-export-${new Date().toISOString().split('T')[0]}.json`;
-      try {
-        await api.downloadFileFromUrl(downloadUrl, filename);
-      } catch (downloadErr) {
-        // Most likely cause: downloadUrl points at a different origin
-        // (e.g. a CDN or storage bucket) that doesn't allow cross-origin
-        // fetches, or the resource 404s/errors. Don't fall back to
-        // window.open()/a direct link here — that's exactly the "opens
-        // in the browser instead of downloading" behavior this is meant
-        // to fix. Show a specific, honest error instead so the user
-        // isn't left staring at a JSON blob in a new tab.
-        console.error('exportContacts() blob download failed:', downloadErr);
-        const status = downloadErr?.response?.status;
-        const reason = status
-          ? `the download failed (HTTP ${status})`
-          : 'the file could not be downloaded';
-        showToast(`Export was prepared, but ${reason}. Please try again.`, 6000);
-        return;
-      }
-
-      const count = exported ?? pagination.total;
-      showToast(`Exported ${count.toLocaleString()} contact${count !== 1 ? 's' : ''}.`, 4500);
+      const count = pagination.total;
+      showToast(message || `Exported ${count.toLocaleString()} contact${count !== 1 ? 's' : ''}.`, 4500);
     } catch (err) {
       dismissPreparing();
       console.error('exportContacts():', err);
-      showToast(getErrorMessage(err, 'Could not export contacts.'));
+      // The request used responseType: 'blob', so a JSON error body from
+      // the backend (e.g. 404 "No contacts found to export") arrives as a
+      // Blob, not parsed JSON — getBlobErrorMessage reads it out properly.
+      showToast(await getBlobErrorMessage(err, 'Could not export contacts.'));
     } finally {
       setExporting(false);
     }

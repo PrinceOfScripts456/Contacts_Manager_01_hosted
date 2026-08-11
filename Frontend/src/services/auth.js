@@ -15,7 +15,7 @@ import api from './api.js';
  *   POST /users/login             { email, password }           -> { user }
  *   POST /users/logout            ()                             -> (2xx, body optional)
  *   GET  /users/restoreSession     ()                             -> { user }
- *   PUT  /users/me                 { username?, email?, currentPassword?, newPassword? } -> { user }
+ *   PATCH  /users/me               { username?, email?, currentPassword?, newPassword? } -> { user }
  *
  * `user` shape: { id, username, email }
  *
@@ -53,7 +53,7 @@ export async function restoreSession() {
 }
 
 export async function updateProfile(payload) {
-  const res = await api.put('/users/me', payload);
+  const res = await api.patch('/users/me', payload);
   return res.data.user;
 }
 

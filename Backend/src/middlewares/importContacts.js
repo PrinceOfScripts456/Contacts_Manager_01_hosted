@@ -1,26 +1,15 @@
 import multer from "multer";
 import path from "path";
 
-const allowedExtensions = [".vcf", ".json"];
-const allowedMimeTypes = ["text/x-vcard", "application/json"];
-
-const storage = multer.memoryStorage();
-
-// const storage = multer.diskStorage({
-    
-//     destination: 'uploads/',
-    
-//     filename: (req, file, cb) => {
-//         const uniqueName = Date.now() + "_" + Math.floor(Math.random() * 1e3) + "_" + file.originalname;
-//         cb(null, uniqueName);
-//     }
-// });
+const allowedExtensions = [".json"];
+const allowedMimeTypes = ["application/json"];
 
 const upload = multer({
-    storage,
+
+    storage: multer.memoryStorage(),
 
     limits: {
-        fileSize: 1024 * 1024 * 20 // 20 MB
+        fileSize: 1024 * 1024 * 5 // 5 MB
     },
 
     fileFilter: (req, file, cb) => {
@@ -29,11 +18,11 @@ const upload = multer({
         const validExtension = allowedExtensions.includes(ext);
         const validMimeType = allowedMimeTypes.includes(file.mimetype);
 
-        if(!validExtension || !validMimeType) {
-            return cb(new Error("Only .vcf and .json files are allowed."));
+        if (!validExtension || !validMimeType) {
+            return cb(new Error("Only .json files are supported."));
         }
 
-        cb(null,true);
+        cb(null, true);
     }
 });
 

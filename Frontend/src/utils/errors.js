@@ -36,3 +36,30 @@ export function getErrorMessage(err, fallback = 'Something went wrong. Please tr
 export function getWarnMessage(res) {
   return res?.warn || null;
 }
+
+/**
+ * Same job as getErrorMessage, but for requests made with
+ * `responseType: 'blob'` (e.g. file export/download). When those fail,
+ * axios still resolves `err.response.data` as a Blob — even for a JSON
+ * error body — because it doesn't know how to parse the response until
+ * you tell it to, so `body?.error` in getErrorMessage would just be
+ * undefined and fall through to a generic message. This reads the blob's
+ * text, tries to parse it as the usual { error } / { errors } / { message }
+ * JSON shape, and falls back gracefully if it isn't JSON at all (e.g. a
+ * proxy/server error page, or a genuine network failure with no blob).
+ */
+export async function getBlobErrorMessage(err, fallback = 'Something went wrong. Please try again.') {
+  const blob = err?.response?.data;
+
+  if (blob instanceof Blob) {
+    try {
+      const text = await blob.text();
+      const parsed = JSON.parse(text);
+      return getErrorMessage({ response: { data: parsed } }, fallback);
+    } catch {
+      // Not JSON (or empty) — fall through to the generic path below.
+    }
+  }
+
+  return getErrorMessage(err, fallback);
+}
