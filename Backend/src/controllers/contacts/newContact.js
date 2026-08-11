@@ -30,7 +30,7 @@ async function saveContact(req, res, next) {
             return res.status(400).json({ message: "data validation failed, contact not saved." });
         }
 
-        const savedContact = await Contact.create({ ...data, user: req.userId });
+        const savedContact = await Contact.create({ user: req.userId, ...data });
 
         console.log("  saveContact(): contact saved");
 

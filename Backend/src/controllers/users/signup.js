@@ -4,7 +4,7 @@ import Users from "../../models/user.js";
 const signup = async (req, res, next) => {
     try {
         const { username, email, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 12);
 
         const user = {
             username,

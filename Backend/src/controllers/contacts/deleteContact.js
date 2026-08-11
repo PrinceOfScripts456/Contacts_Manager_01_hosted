@@ -4,7 +4,7 @@ const deleteContactById = async (req, res, next) => {
 
     try {
 
-        const deletedContact = await Contact.findOneAndDelete({ _id: req.params.id, user: req.userId });
+        const deletedContact = await Contact.findOneAndDelete({ user: req.userId, _id: req.params.id });
 
         if (!deletedContact) {
             console.error(" deleteContactById(): contact not found");

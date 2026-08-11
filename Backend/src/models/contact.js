@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const contactSchema = new mongoose.Schema({
 
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+
     firstName: String,
     lastName: String,
     phones: [{ label: String, number: String }],
@@ -14,16 +20,12 @@ const contactSchema = new mongoose.Schema({
     company: String,
     jobTitle: String,
     created_at: Number,
-    modified_at: Number,
-
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
-    }
+    modified_at: Number
 
 }, {
     timestamps: true
 });
+
+contactSchema.index({ user: 1, _id: -1 });
 
 export default mongoose.model("Contact", contactSchema);

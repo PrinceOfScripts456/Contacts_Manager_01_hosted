@@ -28,7 +28,7 @@ async function updateContact(req, res, next) {
             return res.status(400).json({ error: "validation failed" });
         }
 
-        const editedContact = await Contact.findOneAndUpdate({ _id: req.params.id, user: req.userId }, data, { returnDocument: 'after' });
+        const editedContact = await Contact.findOneAndUpdate({ user: req.userId, _id: req.params.id }, data, { returnDocument: 'after' });
 
         if (!editedContact) {
             console.log("  updateContact(): contact not found");
