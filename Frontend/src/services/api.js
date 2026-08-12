@@ -136,7 +136,7 @@ export async function requestContactsExport({ mode = 'backup', customFilename = 
   const match = disposition.match(/filename="?([^"]+)"?/);
 
   const sanitizedCustom = sanitizeExportFilename(customFilename);
-  const filename = sanitizedCustom || match?.[1] || `contacts-export-${todayDDMMYYYY()}.json`;
+  const filename = sanitizedCustom || `contacts-export-${todayDDMMYYYY()}.json` || match?.[1];
 
   const message = res.headers['message'] || null;
 
