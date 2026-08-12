@@ -58,7 +58,7 @@ export default function Topbar({
         <span className="topbar-brand-mark"><BrandMarkIcon /></span>
         <span>Contacts</span>
       </div>
-      <div className="topbar-sep"></div>
+      <div className="topbar-sep-834"></div>
 
       <div className="search-wrap">
         <SearchIcon />
@@ -87,7 +87,7 @@ export default function Topbar({
           ))}
         </div>
 
-        <div className="topbar-sep"></div>
+        <div className="topbar-sep-580"></div>
 
         <button className="icon-btn" title="Import JSON" onClick={() => importInputRef.current?.click()}>
           <ImportIcon />
