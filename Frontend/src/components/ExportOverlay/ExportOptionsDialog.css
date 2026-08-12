@@ -72,8 +72,8 @@
 }
 
 .export-filename-input {
-    padding-left: 14px;
-    padding-right: 54px;
+    padding-left: 14px !important;
+    padding-right: 54px !important;
 }
 
 .export-filename-suffix {
