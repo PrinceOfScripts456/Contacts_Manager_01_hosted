@@ -115,8 +115,8 @@ export default function LoginPage() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-brand">
-          <span className="auth-brand-mark"><BrandMarkIcon size={16} /></span>
-          <span>Contacts</span>
+          {/* <span className="auth-brand-mark"><BrandMarkIcon size={16} /></span> */}
+          {/* <span>Contacts</span> */}
         </div>
 
         <div className="auth-heading">
