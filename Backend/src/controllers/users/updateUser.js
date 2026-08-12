@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
 import Users from "../../models/user.js";
+import { hashPassword, verifyPassword } from "../../helpers/password.js";
 
 const updateUser = async (req, res, next) => {
     try {
@@ -22,12 +22,13 @@ const updateUser = async (req, res, next) => {
                 return res.status(400).json({ error: "Current password is required to set a new password" });
             }
 
-            const isMatch = await user.comparePassword(currentPassword);
+            const isMatch = await verifyPassword(currentPassword, user.password);
+
             if (!isMatch) {
                 return res.status(401).json({ error: "Current password is incorrect" });
             }
 
-            user.password = await bcrypt.hash(newPassword, 10);
+            user.password = await hashPassword(newPassword);
         }
 
         if (username !== undefined) user.username = username;

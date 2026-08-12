@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import Users from "../../models/user.js";
+import { verifyPassword } from "../../helpers/password.js";
 
 const login = async (req, res, next) => {
 
@@ -12,7 +13,8 @@ const login = async (req, res, next) => {
             return res.status(401).json({ error: "Invalid email or password" });
         }
 
-        const isMatch = await user.comparePassword(password);
+        const isMatch = await verifyPassword(password, user.password);
+
         if (!isMatch) {
             return res.status(401).json({ error: "Invalid email or password" });
         }
