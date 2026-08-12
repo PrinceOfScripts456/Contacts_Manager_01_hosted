@@ -3,6 +3,7 @@ import cors from "cors";
 import path from "path";
 import engine from "ejs-mate";
 import cookieParser from "cookie-parser";
+import compression from "compression";
 
 import { fileURLToPath } from "url";
 
@@ -15,6 +16,8 @@ import contactRoutes from "./routes/contactRoutes.js";
 const app = express();
 
 const allowedOrigins = (process.env.FRONTEND_URLS || "").split(",").map(s => s.trim()).filter(Boolean);
+
+app.use(compression({ threshold: '5kb' })); // only compress responses > 5KB
 
 app.use(cors({
     origin: (origin, callback) => {
