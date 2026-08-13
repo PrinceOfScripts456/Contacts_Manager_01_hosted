@@ -3,6 +3,11 @@
     background: var(--bg);
 }
 
+.account-header .icon-btn[title]:hover::after {
+    left: -50%;
+    transform: none;
+}
+
 .account-header {
     position: sticky;
     top: 0;

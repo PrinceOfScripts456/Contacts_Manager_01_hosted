@@ -135,7 +135,8 @@ export default function AccountPage() {
   return (
     <div className="account-page">
       <header className="account-header">
-        <Link to="/" className="icon-btn" title="Back to contacts" aria-label="Back to contacts">
+        <Link to="/" className="icon-btn" title="Back to contacts" aria-label="Back to contacts"
+          draggable={false} onDragStart={(e) => e.preventDefault()}>
           <ArrowLeftIcon size={16} />
         </Link>
         <h1>Account settings</h1>

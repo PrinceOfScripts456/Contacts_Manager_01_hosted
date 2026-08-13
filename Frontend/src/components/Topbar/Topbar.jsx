@@ -58,19 +58,7 @@ export default function Topbar({
         <span className="topbar-brand-mark"><BrandMarkIcon /></span>
         <span>Contacts</span>
       </div>
-      <div className="topbar-sep-834"></div>
-
-      <div className="search-wrap">
-        <SearchIcon />
-        <input
-          className="search-input"
-          type="search"
-          placeholder="Search by name, phone, email…"
-          autoComplete="off"
-          value={liveQuery}
-          onChange={(e) => setLiveQuery(e.target.value)}
-        />
-      </div>
+      <div className="topbar-sep-840"></div>
 
       <div className="topbar-right">
         <div className="view-toggle" role="group" aria-label="View mode">
@@ -112,10 +100,25 @@ export default function Topbar({
           <PlusIcon />
           <span>New contact</span>
         </button>
+      </div>
 
-        <div className="topbar-sep"></div>
+      <div className="topbar-searchrow">
+        <div className="search-wrap">
+          <SearchIcon />
+          <input
+            className="search-input"
+            type="search"
+            placeholder="Search by name, phone, email…"
+            autoComplete="off"
+            value={liveQuery}
+            onChange={(e) => setLiveQuery(e.target.value)}
+          />
+        </div>
 
-        <UserMenu />
+        <div className="topbar-account">
+          <div className="topbar-sep"></div>
+          <UserMenu />
+        </div>
       </div>
     </header>
   );
