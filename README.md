@@ -150,8 +150,6 @@ The backend includes a `vercel.json` configured to deploy `server.js` as a serve
 
 ## Screenshots
 
-## Screenshots
-
 **Home Page View 1:**
 
 <p align="center">
