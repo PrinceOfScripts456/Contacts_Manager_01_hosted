@@ -150,15 +150,84 @@ The backend includes a `vercel.json` configured to deploy `server.js` as a serve
 
 ## Screenshots
 
-| | |
-|---|---|
-| **Grid view** — card layout with search, view switcher, import/export, and dark-mode toggle | **List view** — compact row layout for scanning contacts quickly |
-| <img src="others/screenshots/View_1.jpg" alt="Grid view" width="100%" style="margin: 8px;" /> | <img src="others/screenshots/View_2.jpg" alt="List view" width="100%" style="margin: 8px;" /> |
-| **Detailed view** — expanded cards showing phone, note, and timestamps inline | **Contact details** — full contact info panel with call/message actions |
-| <img src="others/screenshots/View_3.jpg" alt="Detailed view" width="100%" style="margin: 8px;" /> | <img src="others/screenshots/ViewContactDetails.jpg" alt="Contact details" width="100%" style="margin: 8px;" /> |
-| **New contact** — form for adding name, company, phones, emails, and more | **Edit contact** — update an existing contact's details |
-| <img src="others/screenshots/NewContact.jpg" alt="New contact" width="100%" style="margin: 8px;" /> | <img src="others/screenshots/EditContact.jpg" alt="Edit contact" width="100%" style="margin: 8px;" /> |
-| **Search** — live search by name, phone, or email | **No results** — empty state when a search matches nothing |
-| <img src="others/screenshots/Search.jpg" alt="Search" width="100%" style="margin: 8px;" /> | <img src="others/screenshots/NoResult.jpg" alt="No results" width="100%" style="margin: 8px;" /> |
-| **End of list** — reaching the end of a loaded batch of contacts | **404 page** — shown for unknown routes |
-| <img src="others/screenshots/PageEnd.jpg" alt="End of list" width="100%" style="margin: 8px;" /> | <img src="others/screenshots/PageNotFound.jpg" alt="404 page" width="100%" style="margin: 8px;" /> |
+## Screenshots
+
+**Home Page View 1:**
+
+<p align="center">
+<img src="./others/screenshots/View_1.jpg" width="320px">
+</p>
+
+<hr>
+
+**Home Page View 2:**
+
+<p align="center">
+<img src="./others/screenshots/View_2.jpg" width="320px">
+</p>
+
+<hr>
+
+**Home Page View 3:**
+
+<p align="center">
+<img src="./others/screenshots/View_3.jpg" width="320px">
+</p>
+
+<hr>
+
+**Page Navigation:**
+
+<p align="center">
+<img src="./others/screenshots/PageEnd.jpg" width="320px">
+</p>
+
+<hr>
+
+**Search View (Result Found):**
+
+<p align="center">
+<img src="./others/screenshots/Search.jpg" width="320px">
+</p>
+
+<hr>
+
+**Search View (No Result Found):**
+
+<p align="center">
+<img src="./others/screenshots/NoResult.jpg" width="320px">
+</p>
+
+<hr>
+
+**Create New Contact Page:**
+
+<p align="center">
+<img src="./others/screenshots/NewContact.jpg" width="320px">
+</p>
+
+<hr>
+
+**Contact Details Page:**
+
+<p align="center">
+<img src="./others/screenshots/ViewContactDetails.jpg" width="320px">
+</p>
+
+<hr>
+
+**Contact Edit Page:**
+
+<p align="center">
+<img src="./others/screenshots/EditContact.jpg" width="320px">
+</p>
+
+<hr>
+
+**Page Not Found:**
+
+<p align="center">
+<img src="./others/screenshots/PageNotFound.jpg" width="320px">
+</p>
+
+<hr>
