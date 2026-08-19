@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import * as authService from '../services/auth.js';
+import { hasLoginHint } from '../services/auth.js';
 import { getErrorMessage } from '../utils/errors.js';
 
 const AuthContext = createContext(null);
@@ -18,6 +19,26 @@ const AuthContext = createContext(null);
 // discarded (this is the bug being fixed here).
 const RESTORE_SESSION_PATHS = new Set(['/', '/login', '/account']);
 
+// Subset of RESTORE_SESSION_PATHS where a cached "definitely logged out"
+// hint (see hasLoginHint below) is allowed to skip the restore call
+// entirely and jump straight to the logged-out outcome.
+//
+// /login is included too: with no hint, there is no cookie to restore
+// and therefore nothing a real restoreSession call could tell us that we
+// don't already know (no "already logged in" banner to show, and no
+// bounce-worthy sessionError to explain — a ProtectedRoute bounce can
+// only happen *after* a real restoreSession call failed, which itself
+// only happens when a hint existed in the first place). Skipping here
+// avoids the wasted network round trip AND the misleading "User not
+// logged in or invalid token" flash on a plain refresh of /login when
+// there was never a session to begin with.
+//
+// This still doesn't skip when a hint IS present, so /login keeps doing
+// the real check in every case where it can meaningfully change the
+// outcome (valid session found -> banner; ProtectedRoute bounce with a
+// still-failing session -> sessionError shown).
+const HINT_SKIPPABLE_PATHS = new Set(['/', '/login', '/account']);
+
 // Exported so SessionGate can avoid showing a stale offline/error screen
 // on a route that never actually triggered (or cares about) the restore
 // check in the first place — e.g. navigating from an offline /login to
@@ -30,12 +51,13 @@ export function isSessionGatedPath(pathname) {
  * Wraps the app and exposes the current auth state + actions.
  *
  * The session lives entirely in the httpOnly "token" cookie the backend
- * sets — this context never sees, stores, or caches that token or any
- * stand-in for it (no localStorage) since the frontend has no way to
- * read an httpOnly cookie anyway. GET /users/restoreSession is how it
- * finds out whether that cookie is still valid: a 2xx response means
- * yes (and carries the current user), anything else means there's no
- * usable session.
+ * sets — this context never sees, stores, or caches the token itself,
+ * since the frontend has no way to read an httpOnly cookie anyway. GET
+ * /users/restoreSession is how it finds out whether that cookie is still
+ * valid: a 2xx response means yes (and carries the current user),
+ * anything else means there's no usable session. (A separate, non-secret
+ * localStorage *hint* — see "Login hint fast path" below — is the one
+ * exception, and it never stands in for the token.)
  *
  * This only runs once per full page load, and only on the routes where
  * the answer is actually acted on (see RESTORE_SESSION_PATHS above) —
@@ -49,17 +71,49 @@ export function isSessionGatedPath(pathname) {
  * specific `error` string for. `sessionError` (and a coarser
  * `sessionErrorKind`) captures which one, so the login page can show the
  * right message instead of silently landing on a blank login form.
+ *
+ * ─── Login hint fast path ───
+ * The frontend can never read the httpOnly cookie, so it can't truly know
+ * in advance whether a session exists — but authService keeps a plain
+ * boolean *hint* in localStorage (hasLoginHint/setLoginHint/clearLoginHint
+ * in auth.js, set on every successful login/signup/restore and cleared on
+ * logout or a confirmed 401). That hint is never trusted as the answer —
+ * it only decides whether it's worth calling restoreSession at all, on
+ * HINT_SKIPPABLE_PATHS ("/", "/login", "/account"):
+ *   - No hint (fresh browser, previously logged out, hint cleared by a
+ *     confirmed 401) -> skip the spinner AND the restoreSession call
+ *     entirely, on all three paths; land straight on the logged-out
+ *     outcome (ProtectedRoute's redirect to /login, or — already being on
+ *     /login — just the plain form with no session banner and no error).
+ *   - Hint present -> behaves exactly as before on all three paths: show
+ *     the spinner and wait for the real restoreSession response before
+ *     deciding (needed on /login too, so it can still show the "already
+ *     logged in" banner or the sessionError from an actual ProtectedRoute
+ *     bounce).
+ * A stale-but-wrong hint self-corrects the next time restoreSession
+ * actually runs (e.g. a hint-driven check on any of these paths, or
+ * logging in again) — it isn't something the person can get stuck behind.
  */
 export function AuthProvider({ children }) {
+  // On a hint-skippable path (/, /account) with no "hasSession" hint set,
+  // we already know how this is going to end (logged out) without asking
+  // the server — so hasChecked starts true and the restore call is
+  // skipped entirely for this load. See the effect below.
+  const initialPath = window.location.pathname;
+  const skipToLoggedOut = HINT_SKIPPABLE_PATHS.has(initialPath) && !hasLoginHint();
+
   const [user, setUser] = useState(null);
   // Starts as "not initializing" — flips to true only when a restore
   // check is actually about to run (see the effect below), so a route
-  // that never calls restoreSession (e.g. /signup, an unknown "*" path)
-  // isn't stuck waiting on a request that will never fire.
-  const [initializing, setInitializing] = useState(RESTORE_SESSION_PATHS.has(window.location.pathname));
+  // that never calls restoreSession (e.g. /signup, an unknown "*" path,
+  // or a hint-skipped "/"/"/account") isn't stuck waiting on a request
+  // that will never fire.
+  const [initializing, setInitializing] = useState(
+    RESTORE_SESSION_PATHS.has(initialPath) && !skipToLoggedOut
+  );
   const [sessionError, setSessionError] = useState(null); // human-readable string, or null
   const [sessionErrorKind, setSessionErrorKind] = useState(null); // 'offline' | 'expired' | 'invalid' | 'other' | null
-  const [hasChecked, setHasChecked] = useState(false); // has a restore check actually run yet at all?
+  const [hasChecked, setHasChecked] = useState(skipToLoggedOut); // has a restore check actually run yet at all?
 
   const location = useLocation();
 
@@ -92,6 +146,9 @@ export function AuthProvider({ children }) {
       if (err?.request && !err?.response) {
         setSessionErrorKind('offline');
         setSessionError("Can't reach the server. Please check your connection or try again later.");
+        // Deliberately leave the hint as-is: "can't reach the server" says
+        // nothing about whether the session is actually gone, so it would
+        // be wrong to make future loads skip straight to /login over this.
         return;
       }
 
@@ -134,6 +191,17 @@ export function AuthProvider({ children }) {
     if (!RESTORE_SESSION_PATHS.has(location.pathname)) return;
     if (hasChecked) return;
 
+    // Same hint-skip as the initial state above, but for a router-level
+    // navigation onto "/" or "/account" (not a full page load) — e.g.
+    // clicking a link from /signup to "/". No hint means "definitely
+    // logged out", so skip straight there instead of calling the server.
+    if (HINT_SKIPPABLE_PATHS.has(location.pathname) && !hasLoginHint()) {
+      setUser(null);
+      setInitializing(false);
+      setHasChecked(true);
+      return;
+    }
+
     setInitializing(true);
     const controller = new AbortController();
     runRestoreSession({ signal: controller.signal });
@@ -150,12 +218,14 @@ export function AuthProvider({ children }) {
   }, [runRestoreSession]);
 
   const signup = useCallback(async (payload) => {
+    // authService.signup sets the login hint itself on success.
     const newUser = await authService.signup(payload);
     setUser(newUser);
     return newUser;
   }, []);
 
   const login = useCallback(async (payload) => {
+    // authService.login sets the login hint itself on success.
     const loggedInUser = await authService.login(payload);
     setUser(loggedInUser);
     // A successful manual login supersedes whatever caused the earlier
@@ -168,6 +238,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(async () => {
+    // authService.logout clears the login hint itself.
     await authService.logout();
     setUser(null);
   }, []);
@@ -183,6 +254,10 @@ export function AuthProvider({ children }) {
     if (!user?.id) throw new Error('Not logged in.');
     await authService.deleteAccount();
     setUser(null);
+    // deleteAccount doesn't go through authService.logout(), so the hint
+    // needs clearing here explicitly — otherwise the next load would
+    // still think there was a session worth checking.
+    authService.clearLoginHint();
   }, [user]);
 
   const value = {

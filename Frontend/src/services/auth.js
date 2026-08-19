@@ -19,37 +19,89 @@ import api from './api.js';
  *
  * `user` shape: { id, username, email }
  *
- * There is deliberately no client-side "am I logged in" check — the
- * frontend can't read the httpOnly cookie at all, so it can't know in
- * advance whether one exists or is valid. /users/restoreSession is the
- * single source of truth: the browser sends whatever cookie it has (or
- * none), and the backend replies with the user on success or a 401 if
- * there's no valid session. Callers should treat any non-2xx as "not
- * logged in", not just a missing-cookie case specifically.
+ * The frontend can't read the httpOnly cookie itself, so
+ * /users/restoreSession remains the single source of truth for whether a
+ * session is actually valid — nothing here ever skips that call. What IS
+ * kept client-side is a plain boolean *hint* (see LOGIN_HINT_KEY below): not
+ * the token, not anything sensitive, just "as of the last time we checked,
+ * did the user appear to be logged in?". It's used purely to decide whether
+ * it's worth showing a loading screen while restoreSession runs, or whether
+ * to skip straight to the logged-out UI and let restoreSession happen (or
+ * not) in the background. The hint can be stale or wrong (cleared cookie,
+ * expired token, cleared via devtools, etc.) — callers must still treat
+ * restoreSession's actual response as the real answer.
  */
+
+const LOGIN_HINT_KEY = 'cm-login-session';
+
+/** True if, as of the last check, the user appeared to have a session. */
+export function hasLoginHint() {
+  try {
+    return localStorage.getItem(LOGIN_HINT_KEY) === 'true';
+  } catch {
+    // localStorage can throw in private-browsing/disabled-storage cases —
+    // fall back to "no hint", which just means the normal (slower) path.
+    return false;
+  }
+}
+
+/** Set after any successful login/signup/restore. */
+function setLoginHint() {
+  try {
+    localStorage.setItem(LOGIN_HINT_KEY, 'true');
+  } catch {
+    // Ignore — worst case we just lose the fast path next load.
+  }
+}
+
+/**
+ * Cleared on logout, account deletion, and on a confirmed "not logged in"
+ * from the server. Exported because AuthContext's deleteAccount doesn't
+ * route through logout() but still needs to clear the hint.
+ */
+export function clearLoginHint() {
+  try {
+    localStorage.removeItem(LOGIN_HINT_KEY);
+  } catch {
+    // Ignore.
+  }
+}
 
 export async function signup({ username, email, password }) {
   const res = await api.post('/users/signup', { username, email, password });
+  setLoginHint();
   return res.data.user;
 }
 
 export async function login({ email, password }) {
   const res = await api.post('/users/login', { email, password });
+  setLoginHint();
   return res.data.user;
 }
 
 export async function logout() {
   await api.post('/users/logout');
+  clearLoginHint();
 }
 
 /**
  * GET /users/restoreSession — called on app load to silently restore a
  * session from the httpOnly cookie, with no id or prior state needed.
  * Resolves with the user on a valid session, throws (401) otherwise.
+ * Keeps the login hint in sync with whatever the server actually says.
  */
 export async function restoreSession() {
-  const res = await api.get('/users/restoreSession');
-  return res.data.user;
+  try {
+    const res = await api.get('/users/restoreSession');
+    setLoginHint();
+    return res.data.user;
+  } catch (err) {
+    // Only clear the hint on a definitive "not logged in" (401) — not on
+    // network/server-down errors, where we genuinely don't know and
+    // shouldn't throw away a hint that might still be accurate.
+    if (err?.response?.status === 401) clearLoginHint();
+    throw err;
+  }
 }
 
 export async function updateProfile(payload) {

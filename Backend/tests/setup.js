@@ -8,13 +8,16 @@ let mongoDB;
 
 export async function setup() {
 
+    if (!process.env.JWT_SECRET) {
+        process.env.JWT_SECRET = "test-JWT-456";
+    }
+
     if (process.env.TEST_MONGO_URI) {
         process.env.MONGO_URI = process.env.TEST_MONGO_URI;
     }
     else {
         mongoDB = await MongoMemoryServer.create({
             binary: {
-                // version: "7.0.14", // download ~500 MB
                 version: "8.2.6", // download ~781 MB  -> 74 MB
                 downloadDir: "./tests/mongodb-binaries"
             }
