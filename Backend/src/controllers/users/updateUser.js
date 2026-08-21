@@ -1,14 +1,9 @@
-import mongoose from "mongoose";
 import Users from "../../models/user.js";
 import { hashPassword, verifyPassword } from "../../helpers/password.js";
 
 const updateUser = async (req, res, next) => {
     try {
         const id = req.userId;
-
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ error: "Invalid user id" });
-        }
 
         const user = await Users.findById(id);
         if (!user) {
@@ -38,7 +33,11 @@ const updateUser = async (req, res, next) => {
 
         return res.status(200).json({
             message: "Profile updated successfully",
-            user: { id: user._id, username: user.username, email: user.email }
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email
+            }
         });
 
     } catch (err) {

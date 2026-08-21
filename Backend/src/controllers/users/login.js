@@ -29,7 +29,11 @@ const login = async (req, res, next) => {
         });
 
         return res.status(200).json({
-            user: { id: user._id, username: user.username, email: user.email }
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email
+            }
         });
 
     } catch (err) {

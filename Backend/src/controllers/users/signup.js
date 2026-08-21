@@ -21,7 +21,7 @@ const signup = async (req, res, next) => {
         console.error("Signup error:", err.message || err);
 
         if (err.code === 11000) {
-            return res.status(409).json({ error: "Email already in use" });
+            return res.status(409).json({ error: "An account with this email already exists" });
         }
         return next(err);
     }
