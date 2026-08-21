@@ -101,21 +101,6 @@ The app starts at `http://localhost:5173`.
 
 Visit `http://localhost:5173`, sign up for an account, and start adding contacts.
 
-## Testing
-
-Backend tests use Vitest and Supertest. By default they spin up an in-memory MongoDB instance via `mongodb-memory-server`, so no live database is required:
-
-```bash
-cd Backend
-npm test
-```
-
-To run tests against a real MongoDB instance instead (e.g. a hosted/Atlas database), set `TEST_MONGO_URI` in `Backend/.env` (or in your shell/CI environment) — when present, it's used as the connection string in place of the in-memory server:
-
-```env
-TEST_MONGO_URI=mongodb+srv://user:password@cluster.mongodb.net
-```
-
 ## API Overview
 
 **Auth** — `/users`
